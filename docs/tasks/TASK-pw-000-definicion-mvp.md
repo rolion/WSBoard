@@ -3,7 +3,7 @@
 - Trello: [PW-000](https://trello.com/c/TBxriweK/1-pw-000-definici%C3%B3n-del-mvp-y-decisiones-t%C3%A9cnicas) (lista "Alcance y arquitectura")
 - Rama: `task/TASK-pw-000-definicion-mvp`
 - PR: [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1)
-- Etapa actual: `REVIEW` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
+- Etapa actual: `PUBLISH` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
 - Clasificación: `NEEDS_ARCHITECTURE`
 - Diseño requerido: Sí (DDR de pantallas y estados)
 - Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (COMPLETO, v2.1)
@@ -257,15 +257,16 @@ y REV-17 (documental).
 
 ## Testing
 
-Commit revisado: `d110fd3` (revisiones previas sobre `94df2aa`, `21a7bdf` y `895ae4b`).
+Commit revisado: `0ef6a67` (revisiones previas sobre `94df2aa`, `21a7bdf`, `895ae4b` y `d110fd3`).
 
 | Verificación | Comando | Resultado |
 |---|---|---|
-| Unitarias (AC-1 a AC-9 y hallazgos corregidos) | `npm test` | PASS: 7 archivos, 69 pruebas |
+| Unitarias (AC-1 a AC-9 y hallazgos corregidos) | `npm test` | PASS: 7 archivos, 73 pruebas |
 | Tipos | `npm run typecheck` | PASS |
 | Seguridad de dependencias | `npm audit` | PASS: 0 vulnerabilidades |
 | Higiene del diff | `git ls-files` (`.env`, logs, `dist/`, `node_modules/`) | PASS |
-| Caracteres de control | escaneo de `docs/**/*.md` y `shared/**/*.ts` (revisor) | PASS: solo U+2028/U+2029 esperados en `hardening.test.ts` |
+| A2 frente al código | prueba temporal del revisor: 8 eventos × 7 payloads | PASS: sin diferencias |
+| Caracteres de control | escaneo (revisor) | PASS: solo U+2028/U+2029 esperados en `hardening.test.ts` |
 | Lint | — | NO EJECUTADA: no existe `lint` (decisión del usuario; deuda registrada) |
 | Integración | — | NO APLICA: sin servidor (ver plan). Diferidas: cierre por mensaje grande (A3), rechazo por `MAX_TOTAL_POINTS` (A1) y `stroke:ended` en cierres forzados (A4) |
 | Playwright | — | NO APLICA: sin UI ni servidor (ver plan) |
@@ -273,22 +274,19 @@ Commit revisado: `d110fd3` (revisiones previas sobre `94df2aa`, `21a7bdf` y `895
 
 ## Review
 
-> **Pendiente de nueva revisión.** La aclaración v2.1 de A2 cambió la Specification
-> después de este veredicto; `delivery-publish` debe revisarla. El estado vigente de cada
-> REV está en su archivo.
+**Veredicto: PASS** (2026-11-24, commit revisado `0ef6a67`). Quinta revisión
+independiente, con subagente de contexto limpio y sin permisos de edición, sobre la
+aclaración de A2 (`d110fd3..0ef6a67`). Sin hallazgos Critical, High ni Medium.
 
-**Veredicto anterior: PASS** (2026-11-24, commit revisado `d110fd3`). Cuarta revisión
-independiente, con subagente de contexto limpio y sin permisos de edición, sobre las
-correcciones `895ae4b..d110fd3`. Sin hallazgos Critical, High ni Medium nuevos.
+Cerrado y verificado: REV-15. El revisor probó `parseClientEvent` con
+`null`, `undefined`, `"x"`, `42`, `[]`, `true` y `{}` en `session:join`, `session:resume`,
+`stroke:start|points|end`, `chat:send`, `session:leave` y un evento desconocido: el
+código coincide con A2 en todas las combinaciones.
 
-Cerrados y verificados: REV-12, 13, 14 y 16. El revisor comprobó además que
-`parseClientEvent` no lanza con nombres heredados de `Object.prototype`
-(`constructor`, `__defineGetter__`, `isPrototypeOf`…), con cadenas vacías o con
-espacios, ni con `undefined`, `null`, números, objetos, arrays o `Symbol`, y que el
-mapeo A2 no cambió para los eventos válidos.
-
-Hallazgo nuevo: REV-18 (Low, comentario de prueba impreciso). Defecto documental
-del TASK corregido en esta etapa (sin REV): la tabla de Testing citaba 61 pruebas.
+Hallazgo nuevo: REV-19 (Low: faltan pruebas de payloads que no son objeto en
+`session:join` y `session:resume`, y la enumeración de A2 omite `[]` y booleanos).
+Desfases documentales del TASK corregidos en esta etapa (sin REV): estado de REV-15,
+versión del plan en Publicación y cifra de pruebas en Testing.
 
 | REV | Severidad | Categoría | Estado |
 |---|---|---|---|
@@ -306,25 +304,23 @@ del TASK corregido en esta etapa (sin REV): la tabla de Testing citaba 61 prueba
 | [12](../reviews/REV-2026-11-24-pw-000-definicion-mvp-12.md) | Low | IMPLEMENTATION | Cerrado |
 | [13](../reviews/REV-2026-11-24-pw-000-definicion-mvp-13.md) | Low | IMPLEMENTATION | Cerrado |
 | [14](../reviews/REV-2026-11-24-pw-000-definicion-mvp-14.md) | Medium | IMPLEMENTATION | Cerrado |
-| [15](../reviews/REV-2026-11-24-pw-000-definicion-mvp-15.md) | Medium | SPECIFICATION / IMPLEMENTATION | Abierto (delivery-start, requiere aprobación) |
+| [15](../reviews/REV-2026-11-24-pw-000-definicion-mvp-15.md) | Medium | SPECIFICATION / IMPLEMENTATION | Cerrado (aclaración de A2) |
 | [16](../reviews/REV-2026-11-24-pw-000-definicion-mvp-16.md) | Low | IMPLEMENTATION | Cerrado |
-| [17](../reviews/REV-2026-11-24-pw-000-definicion-mvp-17.md) | Low | ARCHITECTURE | Abierto (delivery-start, documental) |
-| [18](../reviews/REV-2026-11-24-pw-000-definicion-mvp-18.md) | Low | IMPLEMENTATION | Abierto (delivery-build, comentario de prueba) |
-
-REV-15 aclara A2 y por tanto cambia la Specification: requiere aprobación explícita.
+| [17](../reviews/REV-2026-11-24-pw-000-definicion-mvp-17.md) | Low | ARCHITECTURE | Abierto (documental) |
+| [18](../reviews/REV-2026-11-24-pw-000-definicion-mvp-18.md) | Low | IMPLEMENTATION | Abierto (comentario de prueba) |
+| [19](../reviews/REV-2026-11-24-pw-000-definicion-mvp-19.md) | Low | IMPLEMENTATION | Abierto (cobertura y redacción de A2) |
 
 ## Publicación
 
 PR [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1) listo para revisión
 humana. El merge es manual.
 
-- Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (v2)
+- Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (v2.1)
 - Decisiones: ADR de arquitectura, de contrato y de ajustes; DDR (ver `## Decisiones`).
 - Limitaciones: sin lint, integración ni Playwright (no aplican aún).
-- Abiertos: REV-15 (Medium); REV-17 y REV-18 (Low).
+- Abiertos (todos Low): REV-17, REV-18 y REV-19.
 - A revisar por quien apruebe: la política de reinicio (ADR arquitectura D4), el tope
-  `MAX_TOTAL_POINTS` y el mapeo de errores (ADR de ajustes A1, A2) y la aclaración
-  pendiente de A2 (REV-15).
+  `MAX_TOTAL_POINTS` y el mapeo de errores (ADR de ajustes A1, A2).
 
 ## Historial
 
@@ -343,3 +339,4 @@ humana. El merge es manual.
 | 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `d110fd3`; REV-12, 13, 14 y 16 cerrados; REV-18 (Low) nuevo |
 | 2026-11-24 | PUBLISH → PLANNING | Usuario aprueba aclarar A2 (REV-15); Specification v2.1 |
 | 2026-11-24 | PLANNING → ENGINEERING → REVIEW | Pruebas de AC-9 ampliadas; 73 pruebas y typecheck en PASS |
+| 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `0ef6a67`; REV-15 cerrado; REV-19 (Low) nuevo |
