@@ -4,9 +4,9 @@
 - Commit revisado: 895ae4b
 - Severidad: Medium
 - Categoría: IMPLEMENTATION
-- Estado: Corregido en delivery-build (pendiente de verificación en delivery-publish)
+- Estado: Cerrado (verificado en d110fd3)
 - Criterio / plan vigente: AC-9; ADR de ajustes A2 · PLAN-2026-11-24-pw-000-definicion-mvp v2
-- Etapa responsable: IMPLEMENTATION → delivery-build
+- Etapa responsable: — (cerrado)
 
 ## Comportamiento esperado
 Un evento desconocido devuelve `{ ok: false, code: "PAYLOAD_INVALID" }` y el servidor no necesita validar el nombre antes.

@@ -4,9 +4,9 @@
 - Commit revisado: 21a7bdf
 - Severidad: Low
 - Categoría: IMPLEMENTATION
-- Estado: Corregido en delivery-build (pendiente de verificación en delivery-publish)
+- Estado: Cerrado (verificado en d110fd3)
 - Criterio / plan vigente: AC-2 · PLAN-2026-11-24-pw-000-definicion-mvp v1
-- Etapa responsable: IMPLEMENTATION → delivery-build (o documentar en el ADR)
+- Etapa responsable: — (cerrado)
 
 ## Comportamiento esperado
 Decisión explícita sobre la posición de las marcas combinantes en el alias.
