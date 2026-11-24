@@ -3,11 +3,11 @@
 - Trello: [PW-000](https://trello.com/c/TBxriweK/1-pw-000-definici%C3%B3n-del-mvp-y-decisiones-t%C3%A9cnicas) (lista "Alcance y arquitectura")
 - Rama: `task/TASK-pw-000-definicion-mvp`
 - PR: [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1)
-- Etapa actual: `REVIEW` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
+- Etapa actual: `PUBLISH` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
 - Clasificación: `NEEDS_ARCHITECTURE`
 - Diseño requerido: Sí (DDR de pantallas y estados)
 - Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (COMPLETO)
-- Specification readiness: `READY` (con supuestos S1–S6 sujetos a aprobación explícita)
+- Specification readiness: `READY` (supuestos S1–S6 aprobados el 2026-11-24)
 
 ## Investigación
 
@@ -154,15 +154,62 @@ Ver [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-defi
 
 ## Testing
 
-_(lo completa `delivery-publish`)_
+Commit revisado: `94df2aa`. Verificaciones del gate:
+
+| Verificación | Comando | Resultado |
+|---|---|---|
+| Unitarias (AC-1 a AC-7) | `npm test` | PASS: 5 archivos, 35 pruebas |
+| Tipos | `npm run typecheck` | PASS |
+| Seguridad de dependencias | `npm audit` | PASS: 0 vulnerabilidades |
+| Higiene del diff | `git ls-files` (`.env`, logs, `dist/`, `node_modules/`) | PASS: sin secretos ni artefactos |
+| Lint | — | NO EJECUTADA: no existe `lint` (decisión del usuario; deuda registrada) |
+| Integración | — | NO APLICA: sin servidor (ver plan) |
+| Playwright | — | NO APLICA: sin UI ni servidor (ver plan) |
+| Revisión visual | — | NO APLICA: sin cambios de UI |
+
+Observaciones sobre las pruebas (del revisor): `limits.test.ts` repite los valores
+a mano y `events.test.ts` (AC-6) solo comprueba nombres de evento en el ADR; no
+cubren ancho inclusivo (0.001 y 0.05), campos desconocidos fuera de `stroke:start`,
+UUID v4 estricto, punto de 3 elementos ni `dpr` fraccionario.
 
 ## Review
 
-_(lo completa `delivery-publish`)_
+**Veredicto: PASS** (2026-11-24, commit revisado `94df2aa`).
+
+Revisión independiente con subagente de contexto limpio, sin permisos de edición.
+Sin hallazgos `Critical` ni `High`. Hallazgos abiertos permitidos por el gate:
+
+| REV | Severidad | Categoría | Resumen | Etapa |
+|---|---|---|---|---|
+| [01](../reviews/REV-2026-11-24-pw-000-definicion-mvp-01.md) | Medium | ARCHITECTURE | Snapshot sin cota agregada de puntos | delivery-start |
+| [02](../reviews/REV-2026-11-24-pw-000-definicion-mvp-02.md) | Medium | PLAN / IMPLEMENTATION | `events.ts` sin tipos de payload S→C, error ni ack | delivery-build |
+| [03](../reviews/REV-2026-11-24-pw-000-definicion-mvp-03.md) | Medium | SPECIFICATION | Sin regla de mapeo esquema → código de error | delivery-start |
+| [04](../reviews/REV-2026-11-24-pw-000-definicion-mvp-04.md) | Medium | SPECIFICATION | "3 mensajes excesivos seguidos" inalcanzable | delivery-start |
+| [05](../reviews/REV-2026-11-24-pw-000-definicion-mvp-05.md) | Medium | SPECIFICATION | Cierre forzado de trazo sin `stroke:ended` definido | delivery-start |
+| [06](../reviews/REV-2026-11-24-pw-000-definicion-mvp-06.md) | Low | SPECIFICATION | `reason: "replaced"` y `lastSeq` sin uso | delivery-start |
+| [07](../reviews/REV-2026-11-24-pw-000-definicion-mvp-07.md) | Low | SPECIFICATION | `seq:advance` fuera de la tabla S→C | delivery-start |
+| [08](../reviews/REV-2026-11-24-pw-000-definicion-mvp-08.md) | Low | IMPLEMENTATION | `z.uuid()` no restringe a v4 | delivery-build |
+| [09](../reviews/REV-2026-11-24-pw-000-definicion-mvp-09.md) | Low | IMPLEMENTATION | Chat acepta U+0085, U+2028, U+2029 | delivery-build |
+| [10](../reviews/REV-2026-11-24-pw-000-definicion-mvp-10.md) | Low | IMPLEMENTATION | `toLogical` propaga `NaN`; `\p{M}` no documentado | delivery-build |
+| [11](../reviews/REV-2026-11-24-pw-000-definicion-mvp-11.md) | Low | IMPLEMENTATION | Nombres de constantes distintos al ADR | delivery-build |
+
+Resuelto en esta etapa: el encabezado del TASK aún decía "sujetos a aprobación"
+(hallazgo 12 del revisor); se corrigió.
+
+Los hallazgos de categoría `SPECIFICATION` y `ARCHITECTURE` cambian el contrato
+aprobado: requieren aprobación explícita antes de modificarse.
 
 ## Publicación
 
-_(lo completa `delivery-publish`)_
+PR [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1) listo para revisión
+humana. El merge es manual.
+
+- Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md)
+- Decisiones: ADR de arquitectura y de contrato, DDR (ver `## Decisiones`).
+- Limitaciones: sin lint, integración ni Playwright (no aplican aún); 11 hallazgos abiertos
+  (5 Medium, 6 Low).
+- A revisar por quien apruebe: los 5 Medium (sobre todo REV-01, REV-03, REV-04 y REV-05,
+  que tocan el contrato) y la política de reinicio (ADR arquitectura D4).
 
 ## Historial
 
@@ -171,3 +218,4 @@ _(lo completa `delivery-publish`)_
 | 2026-11-24 | INVESTIGATION → DESIGN → ARCHITECTURE → PLANNING | Documentación inicial; Specification `READY` con supuestos S1–S6 |
 | 2026-11-24 | PLANNING → ENGINEERING | Usuario aprueba S1–S6 y confirma Socket.IO (S1) frente a `ws`. ADR y DDR pasan a `Aceptado` |
 | 2026-11-24 | ENGINEERING → REVIEW | `shared/` implementado; 35 pruebas y typecheck en PASS |
+| 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `94df2aa`; 11 hallazgos abiertos (5 Medium, 6 Low) en `docs/reviews/` |
