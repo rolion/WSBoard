@@ -1,7 +1,7 @@
 # PLAN-2026-11-24-pw-000-definicion-mvp
 
 - Modo: **COMPLETO** (define contratos compartidos, autoridad del estado y fronteras entre módulos)
-- Versión: 1
+- Versión: 2
 - TASK: [TASK-pw-000-definicion-mvp](../tasks/TASK-pw-000-definicion-mvp.md)
 - Decisiones: [ADR arquitectura](../adr/ADR-pw-000-definicion-mvp-arquitectura.md), [ADR contrato](../adr/ADR-pw-000-definicion-mvp-contrato-eventos.md), [DDR](../design/DDR-pw-000-definicion-mvp-experiencia.md)
 
@@ -36,6 +36,8 @@ Fuera de alcance: servidor Socket.IO, UI, Canvas, Playwright (ver decisión).
 | 4 | `shared/schemas.ts` por evento C→S | `shared/src/schemas.ts` | 3 |
 | 5 | `shared/coords.ts` | `shared/src/coords.ts` | 3 |
 | 6 | Pruebas unitarias | `shared/test/*` | 4, 5 |
+| 7 | `MAX_TOTAL_POINTS`; `session:resume` sin `lastSeq`; `presence:left` sin `replaced` (v2) | `shared/src/limits.ts`, `schemas.ts`, `types.ts` | 3, 4 |
+| 8 | `parseClientEvent` y sus pruebas (v2) | `shared/src/validation.ts`, `shared/test/validation.test.ts` | 4 |
 
 Dependencias nuevas (requieren confirmación en `delivery-build`): `typescript`,
 `vitest`, `zod`; tipos y `eslint` según la convención que se elija en el paso 2.
@@ -59,6 +61,8 @@ Dependencias nuevas (requieren confirmación en `delivery-build`): `typescript`,
 | AC-4 Coordenadas | `coords.test.ts`: ida y vuelta lógico↔píxel con tamaños 320×180, 800×450, 1000×700 (letterbox) y `devicePixelRatio` 2 | Unitaria |
 | AC-5 Contrato completo | `events.test.ts`: todo evento del ADR tiene esquema/tipo y código de error declarado | Unitaria |
 | AC-6 Documentación coherente | Revisión de `delivery-publish`: ADR, DDR, TASK y `shared/` coinciden (nombres de evento, errores, límites) | Revisión |
+| AC-8 `MAX_TOTAL_POINTS` (v2) | `limits.test.ts`; revisión del ADR de ajustes A1; efecto en el servidor diferido a integración | Unitaria + Revisión |
+| AC-9 Mapeo de errores (v2) | `validation.test.ts`: cada evento y condición de A2 | Unitaria |
 | AC-7 Política de reinicio | Documentada en ADR (D4) y reflejada en `errors.ts` (`SESSION_EXPIRED`) y `CLAUDE.md` | Revisión + AC-5 |
 
 **Integración:** no aplica en este TASK (no hay servidor). Quedan
@@ -80,3 +84,4 @@ navegador independientes**, cubriendo entrada tardía y reconexión.
 ## Historial del plan
 
 - v1 (2026-11-24): versión inicial.
+- v2 (2026-11-24): enmienda de Specification (ADR de ajustes A1–A6): pasos 7 y 8, AC-8 y AC-9. Los cambios de Implementation Plan y de Specification se registran por separado en el TASK. La v1 se conserva en el historial de git.
