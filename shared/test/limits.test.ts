@@ -12,6 +12,7 @@ describe("limits", () => {
     expect(L.MAX_POINTS_PER_BATCH).toBe(64);
     expect(L.MAX_POINTS_PER_STROKE).toBe(5_000);
     expect(L.MAX_STROKES).toBe(5_000);
+    expect(L.MAX_TOTAL_POINTS).toBe(500_000);
     expect([L.STROKE_WIDTH_MIN, L.STROKE_WIDTH_MAX]).toEqual([0.001, 0.05]);
     expect(L.MAX_OPEN_STROKES_PER_PARTICIPANT).toBe(1);
     expect(L.CHAT_MAX_CHARS).toBe(500);

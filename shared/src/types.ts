@@ -40,13 +40,13 @@ export interface PresenceStatusPayload { seq: number; participantId: Participant
 export interface PresenceLeftPayload {
   seq: number;
   participantId: ParticipantId;
-  reason: "leave" | "timeout" | "replaced";
+  reason: "leave" | "timeout";
 }
 export interface StrokeStartedPayload { seq: number; stroke: Stroke }
 export interface StrokeAppendedPayload { seq: number; id: StrokeId; points: Point[] }
 export interface StrokeEndedPayload { seq: number; id: StrokeId }
 export interface ChatMessagePayload { seq: number; message: ChatMessage }
-/** Solo al autor de un evento de trazo, para avanzar `lastSeq` sin huecos. */
+/** Solo al autor de un evento de trazo; lleva el `seq` del evento que no recibe (no consume uno propio). */
 export interface SeqAdvancePayload { seq: number }
 
 export interface ServerEventPayloads {

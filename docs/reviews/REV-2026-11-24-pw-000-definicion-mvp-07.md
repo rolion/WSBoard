@@ -4,7 +4,7 @@
 - Commit revisado: 94df2aa
 - Severidad: Low
 - Categoría: SPECIFICATION
-- Estado: Abierto (permitido por el gate; no bloquea PASS)
+- Estado: Resuelto por ADR de ajustes A6 y verificado en tests de shared/ (pendiente de verificación en delivery-publish)
 - Criterio / plan vigente: ADR contrato, tabla S→C y nota de `seq:advance` · PLAN-2026-11-24-pw-000-definicion-mvp v1
 - Etapa responsable: SPECIFICATION → delivery-start
 

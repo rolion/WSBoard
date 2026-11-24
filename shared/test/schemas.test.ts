@@ -22,11 +22,11 @@ describe("session:join", () => {
 });
 
 describe("session:resume", () => {
-  it("valida token y lastSeq", () => {
-    expect(ok(s["session:resume"], { sessionToken: "abc", lastSeq: 0 })).toBe(true);
-    expect(ok(s["session:resume"], { sessionToken: "", lastSeq: 0 })).toBe(false);
-    expect(ok(s["session:resume"], { sessionToken: "abc", lastSeq: -1 })).toBe(false);
-    expect(ok(s["session:resume"], { sessionToken: "abc", lastSeq: 1.5 })).toBe(false);
+  it("valida solo el token (sin lastSeq)", () => {
+    expect(ok(s["session:resume"], { sessionToken: "abc" })).toBe(true);
+    expect(ok(s["session:resume"], { sessionToken: "" })).toBe(false);
+    expect(ok(s["session:resume"], {})).toBe(false);
+    expect(s["session:resume"].parse({ sessionToken: "abc", lastSeq: 5 })).not.toHaveProperty("lastSeq");
   });
 });
 

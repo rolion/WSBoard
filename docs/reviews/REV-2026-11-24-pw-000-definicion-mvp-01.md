@@ -4,7 +4,7 @@
 - Commit revisado: 94df2aa
 - Severidad: Medium
 - Categoría: ARCHITECTURE
-- Estado: Abierto (permitido por el gate; no bloquea PASS)
+- Estado: Resuelto por ADR de ajustes A1 y verificado en tests de shared/ (pendiente de verificación en delivery-publish)
 - Criterio / plan vigente: ADR arquitectura D7 y D8; ADR contrato, tabla de límites · PLAN-2026-11-24-pw-000-definicion-mvp v1
 - Etapa responsable: ARCHITECTURE → delivery-start (nuevo ADR que reemplace al vigente)
 

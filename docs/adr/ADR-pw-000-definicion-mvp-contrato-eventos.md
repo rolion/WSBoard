@@ -3,6 +3,7 @@
 - Estado: Aceptado (2026-11-24)
 - Tarea: [TASK-pw-000-definicion-mvp](../tasks/TASK-pw-000-definicion-mvp.md)
 - Depende de: [ADR de arquitectura](ADR-pw-000-definicion-mvp-arquitectura.md)
+- Enmendado por: [ADR de ajustes tras la revisión](ADR-pw-000-definicion-mvp-ajustes-revision.md) (A1–A6); prevalece sobre este texto
 
 ## Convenciones
 
@@ -14,6 +15,8 @@
   `error` (ver abajo). Campos desconocidos se descartan (`strip`). El
   servidor nunca confía en `participantId`, `seq` ni `ts` enviados por el
   cliente: los fija él.
+- Mapeo de fallos de esquema a códigos de error: ver ADR de ajustes (A2) y
+  `parseClientEvent` en `shared/`.
 - Los eventos de difusión (`S→C`) llevan `seq` (entero, monotónico, sin
   huecos, global a la sala).
 - Los eventos C→S con respuesta usan *acknowledgement* de Socket.IO.
@@ -56,6 +59,7 @@ interface Snapshot {
 | `MAX_POINTS_PER_BATCH` | 64 |
 | `MAX_POINTS_PER_STROKE` | 5 000 |
 | `MAX_STROKES` | 5 000 |
+| `MAX_TOTAL_POINTS` | 500 000 (suma de puntos de todos los trazos de la sala) |
 | `STROKE_WIDTH_MIN` / `MAX` | 0.001 / 0.05 |
 | `MAX_OPEN_STROKES_PER_PARTICIPANT` | 1 |
 | `CHAT_MAX_CHARS` | 500 (tras recortar; no vacío) |
@@ -67,8 +71,9 @@ interface Snapshot {
 | `RECONNECT_GRACE_MS` | 30 000 |
 
 Superar el límite de tasa descarta el evento y emite `error RATE_LIMITED`
-(el socket no se desconecta). Enviar 3 mensajes inválidos de tamaño excesivo
-seguidos desconecta el socket.
+(el socket no se desconecta). Un mensaje de más de `MAX_MESSAGE_BYTES` cierra
+la conexión (comportamiento de `maxHttpBufferSize`); el cliente reintenta con
+`session:resume`.
 
 ## Eventos C→S
 
@@ -85,7 +90,7 @@ seguidos desconecta el socket.
 
 ### `session:resume` (ack)
 - Emisor: cliente tras reconexión o hueco de `seq`.
-- Payload: `{ sessionToken: string, lastSeq: number }`
+- Payload: `{ sessionToken: string }`
 - Validación: token existente, de un participante vivo o en gracia, con el
   mismo `epoch` de proceso (un reinicio invalida todos los tokens).
 - Éxito: ack `{ ok: true, snapshot }` (siempre completo). Si estaba en
@@ -102,7 +107,8 @@ seguidos desconecta el socket.
   (1 a 64 puntos).
 - Validación: id uuid y no usado en la sala; tool, color y width válidos;
   puntos en `[0,1]` y finitos; el autor no tiene otro trazo abierto; sala
-  con menos de `MAX_STROKES`.
+  con menos de `MAX_STROKES` y sin superar `MAX_TOTAL_POINTS` (si no,
+  `BOARD_FULL` y no se crea el trazo).
 - Efecto: crea el trazo `open`; difunde `stroke:started` a **todos** los
   demás participantes (el autor ya lo pinta localmente y recibe
   `seq:advance`, ver nota más abajo).
@@ -112,15 +118,18 @@ seguidos desconecta el socket.
 ### `stroke:points`
 - Payload: `{ id: StrokeId, points: Point[] }` (1 a 64 puntos).
 - Validación: el trazo existe, está abierto y es del emisor; el total no supera
-  5 000 puntos (los excedentes provocan `STROKE_INVALID` y el trazo se cierra).
+  5 000 puntos (si no, `STROKE_INVALID`) ni la sala supera `MAX_TOTAL_POINTS`
+  (si no, `BOARD_FULL`). Se rechaza todo el lote y el trazo se cierra con
+  `stroke:ended` (ver ajustes A4).
 - Efecto: añade puntos y difunde `stroke:appended`.
 
 ### `stroke:end`
 - Payload: `{ id: StrokeId }`
 - Validación: trazo abierto del emisor.
-- Efecto: marca `open = false`, difunde `stroke:ended`. Si el emisor se
-  desconecta con un trazo abierto, el servidor lo cierra igual (difunde
-  `stroke:ended`) al caducar la gracia; mientras tanto permanece abierto.
+- Efecto: marca `open = false`, difunde `stroke:ended`. Todo cierre forzado
+  (exceso de puntos, caducidad de la gracia, salida o `timeout` del autor)
+  difunde también `stroke:ended` con un `seq` nuevo (ajustes A4); mientras
+  el autor está en gracia, el trazo permanece abierto.
 
 ### `chat:send` (ack)
 - Payload: `{ text: string }`
@@ -139,11 +148,12 @@ Todos incluyen `seq`.
 |---|---|---|
 | `presence:joined` | todos menos el nuevo | `{ participant }` |
 | `presence:status` | todos | `{ participantId, status }` |
-| `presence:left` | todos | `{ participantId, reason: "leave" \| "timeout" \| "replaced" }` |
+| `presence:left` | todos | `{ participantId, reason: "leave" \| "timeout" }` |
 | `stroke:started` | todos menos el autor | `{ stroke }` (con `open: true`) |
 | `stroke:appended` | todos menos el autor | `{ id, points }` |
 | `stroke:ended` | todos menos el autor | `{ id }` |
 | `chat:message` | todos | `{ message }` |
+| `seq:advance` | solo el autor de un evento de trazo | `{ seq }` (el `seq` del evento que no recibe; no consume un `seq` propio) |
 
 **Nota sobre `seq` y el autor.** Como el autor no recibe sus propios eventos
 de trazo, observaría huecos en `seq`. Por eso se envía al autor un evento
@@ -156,8 +166,9 @@ descartada: `seq` por destinatario, que rompería el orden global.)
 `error { code, message, ref?: string }` solo al emisor. Códigos:
 `NOT_JOINED`, `PROTOCOL_MISMATCH`, `ALIAS_INVALID`, `ALIAS_TAKEN`,
 `ROOM_FULL`, `ALREADY_JOINED`, `SESSION_EXPIRED`, `STROKE_INVALID`,
-`STROKE_LIMIT`, `BOARD_FULL`, `CHAT_INVALID`, `RATE_LIMITED`,
-`PAYLOAD_INVALID` (esquema no cumplido). Los mensajes de usuario se mapean
+`STROKE_LIMIT` (ya hay un trazo abierto), `BOARD_FULL`, `CHAT_INVALID`,
+`RATE_LIMITED`, `PAYLOAD_INVALID` (esquema no cumplido en eventos sin código
+propio; ver ajustes A2). Los mensajes de usuario se mapean
 en el cliente; `message` es solo diagnóstico.
 
 ## Garantías de orden y duplicados

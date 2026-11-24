@@ -85,7 +85,7 @@ describe("límites inclusivos y campos desconocidos", () => {
   });
   it("descarta campos desconocidos en todos los eventos", () => {
     expect(s["session:join"].parse({ alias: "Ana", protocol: 1, x: 1 })).not.toHaveProperty("x");
-    expect(s["session:resume"].parse({ sessionToken: "t", lastSeq: 0, x: 1 })).not.toHaveProperty("x");
+    expect(s["session:resume"].parse({ sessionToken: "t", x: 1 })).not.toHaveProperty("x");
     expect(s["stroke:points"].parse({ id: v4, points: [[0, 0]], x: 1 })).not.toHaveProperty("x");
     expect(s["stroke:end"].parse({ id: v4, x: 1 })).not.toHaveProperty("x");
     expect(s["chat:send"].parse({ text: "hola", x: 1 })).not.toHaveProperty("x");

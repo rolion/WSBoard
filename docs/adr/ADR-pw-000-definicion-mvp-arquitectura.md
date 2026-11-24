@@ -3,6 +3,7 @@
 - Estado: Aceptado (2026-11-24)
 - Tarea: [TASK-pw-000-definicion-mvp](../tasks/TASK-pw-000-definicion-mvp.md)
 - Relacionado: [ADR de contrato de eventos](ADR-pw-000-definicion-mvp-contrato-eventos.md)
+- Enmendado por: [ADR de ajustes tras la revisión](ADR-pw-000-definicion-mvp-ajustes-revision.md) (D5, D7, D8); prevalece sobre este texto
 - ADR reemplazados: ninguno (primer ADR del repositorio)
 
 ## Contexto
@@ -86,7 +87,7 @@ considera el que difunde el servidor.
   dos pestañas son dos participantes con aliases distintos).
 - **Gracia de reconexión: 30 s.** Si el socket se cae, el participante pasa
   a `reconnecting` y conserva su alias durante 30 s. Dentro de ese tiempo
-  `session:resume { sessionToken, lastSeq }` lo recupera. Pasado el tiempo,
+  `session:resume { sessionToken }` lo recupera. Pasado el tiempo,
   se elimina, se libera el alias y se difunde `presence:left`.
 - Un `resume` con el participante aún conectado (pestaña duplicada con el
   mismo token) sustituye al socket anterior, que se desconecta.
@@ -122,13 +123,13 @@ considera el que difunde el servidor.
   pide un snapshot nuevo (`session:resume`). Esto cubre pérdidas en
   reconexión.
 - Reconexión del MVP: **siempre snapshot completo** (sin reproducción
-  incremental). Con límites de 5 000 trazos el snapshot cabe en la
-  carga máxima razonable (ver límites en el ADR de contrato).
+  incremental). El snapshot está acotado por `MAX_TOTAL_POINTS` (500 000
+  puntos, ~8 MB en el peor caso; ver ajustes A1).
 
 ### D8. Límites (resumen; valores normativos en el ADR de contrato)
 
 Participantes 30; mensaje ≤ 16 KiB; lote ≤ 64 puntos; trazo ≤ 5 000 puntos;
-sala ≤ 5 000 trazos (luego `BOARD_FULL`); chat ≤ 500 caracteres, historial
+sala ≤ 5 000 trazos y ≤ 500 000 puntos en total (luego `BOARD_FULL`); chat ≤ 500 caracteres, historial
 200; límites de tasa por socket.
 
 ## Consecuencias

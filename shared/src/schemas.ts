@@ -86,7 +86,6 @@ export const joinPayloadSchema = z.object({
 
 export const resumePayloadSchema = z.object({
   sessionToken: z.string().min(1).max(128),
-  lastSeq: z.number().int().min(0),
 });
 
 export const strokeStartPayloadSchema = z.object({

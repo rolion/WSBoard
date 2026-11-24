@@ -4,7 +4,7 @@
 - Commit revisado: 94df2aa
 - Severidad: Medium
 - Categoría: SPECIFICATION
-- Estado: Abierto (permitido por el gate; no bloquea PASS)
+- Estado: Resuelto por ADR de ajustes A3 y verificado en tests de shared/ (pendiente de verificación en delivery-publish)
 - Criterio / plan vigente: ADR contrato, límites (3 mensajes excesivos seguidos) · PLAN-2026-11-24-pw-000-definicion-mvp v1
 - Etapa responsable: SPECIFICATION → delivery-start (requiere aprobación explícita)
 
