@@ -4,7 +4,7 @@
 - Commit revisado: 94df2aa
 - Severidad: Low
 - Categoría: IMPLEMENTATION
-- Estado: Corregido parcialmente en delivery-build (nombres y constantes alineados; la confusión `STROKE_LIMIT` vs `STROKE_INVALID` queda como asunto de Specification, ver REV-05)
+- Estado: Cerrado parcialmente en 21a7bdf (nombres y constantes verificados); la confusión `STROKE_LIMIT` vs `STROKE_INVALID` sigue abierta como asunto de Specification (ver REV-05)
 - Criterio / plan vigente: AC-1 / AC-5; ADR contrato, tabla de límites · PLAN-2026-11-24-pw-000-definicion-mvp v1
 - Etapa responsable: IMPLEMENTATION → delivery-build (alinear documento o código)
 

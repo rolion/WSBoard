@@ -4,7 +4,7 @@
 - Commit revisado: 94df2aa
 - Severidad: Low
 - Categoría: IMPLEMENTATION
-- Estado: Corregido en delivery-build (pendiente de verificación en delivery-publish)
+- Estado: Cerrado (corrección verificada en 21a7bdf)
 - Criterio / plan vigente: AC-4 (coordenadas); AC-2 (alias) · PLAN-2026-11-24-pw-000-definicion-mvp v1
 - Etapa responsable: IMPLEMENTATION → delivery-build (proteger `NaN`; documentar o aceptar `\p{M}`)
 

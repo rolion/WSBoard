@@ -3,7 +3,7 @@
 - Trello: [PW-000](https://trello.com/c/TBxriweK/1-pw-000-definici%C3%B3n-del-mvp-y-decisiones-t%C3%A9cnicas) (lista "Alcance y arquitectura")
 - Rama: `task/TASK-pw-000-definicion-mvp`
 - PR: [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1)
-- Etapa actual: `REVIEW` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
+- Etapa actual: `PUBLISH` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
 - Clasificación: `NEEDS_ARCHITECTURE`
 - Diseño requerido: Sí (DDR de pantallas y estados)
 - Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (COMPLETO)
@@ -22,207 +22,50 @@
   skills lo referencian (`delivery-start/SKILL.md:7`,
   `delivery-build/SKILL.md:18-19`, `delivery-publish/SKILL.md:19-20`).
   Se usó la estructura implícita de las skills (`## Investigación`,
-  `## Implementación`, `## Review`, `## Publicación`, `## Testing`,
-  `## Changes`) y se crea la plantilla en el plan.
-- No hay ADR ni DDR previos que respetar.
+  `## Implementación`, `## Review`, `## Publicación`, `## Testing
 
-**Requisitos de la tarjeta** (fuente de requisitos): pizarra compartida en
-tiempo real, usuarios por alias, chat y presencia; sala pública única; sin
-cuentas ni persistencia; sesiones en memoria; stack propuesto React + TS +
-Canvas 2D + Node.js con Socket.IO/WebSocket; servidor autoritativo de aliases
-y estado; sin imágenes completas por movimiento; eventos estructurados de
-trazos; snapshot al entrar; límites de eventos y payloads. Criterio de salida:
-arquitectura, contrato de eventos, definición de sala y política de reinicio
-acordadas. La tarjeta no tiene checklists ni comentarios.
-
-**Veredicto**
-
-- `NEEDS_ARCHITECTURE`: fija quién controla el estado compartido, su
-  (no) persistencia y la estrategia de sincronización.
-- Diseño: requerido, porque define las pantallas y estados visibles.
-
-**Supuestos (a confirmar al aprobar la Specification)**
-
-| ID | Supuesto | Dónde |
-|---|---|---|
-| S1 | Socket.IO (solo `websocket`) en lugar de `ws` | ADR arquitectura D1 |
-| S2 | Reglas de alias: 2–20 caracteres, letras/dígitos/espacio/`_-.`, único sin distinguir mayúsculas | ADR contrato |
-| S3 | La sala vacía conserva su estado hasta reiniciar el proceso | ADR arquitectura D4 |
-| S4 | Sin "limpiar pizarra", deshacer, formas, texto ni exportar en el MVP | Specification |
-| S5 | Gracia de reconexión de 30 s; tope de 5 000 trazos y 30 participantes | ADR arquitectura |
-| S6 | Una pestaña = un participante (token en `sessionStorage`) | ADR arquitectura D5 |
-
-## Specification
-
-**Alcance (MVP):** una sala pública `main`, participantes por alias, pizarra
-con lápiz y borrador, chat de texto, lista de presencia, servidor autoritativo,
-estado en memoria.
-
-**Fuera de alcance:** cuentas, múltiples salas, persistencia (dibujos, chat,
-sesiones), limpiar o deshacer, formas, texto en la pizarra, imágenes, exportar,
-moderación, escalado horizontal, cifrado de aplicación.
-
-**Criterios de aceptación de este TASK** (el contrato es el entregable):
-
-- **AC-1** Los límites de la tabla del ADR de contrato existen como constantes
-  únicas compartidas por cliente y servidor.
-- **AC-2** El alias se normaliza y valida con las reglas de S2, y existe una
-  clave de comparación insensible a mayúsculas.
-- **AC-3** Cada evento C→S tiene un esquema de validación que rechaza payloads
-  fuera de límites y descarta campos desconocidos.
-- **AC-4** Las coordenadas se expresan en `[0,1]` sobre un lienzo 16:9 y hay
-  conversión a píxeles con letterbox y `devicePixelRatio`.
-- **AC-5** Todos los eventos y códigos de error del ADR de contrato están
-  declarados en `shared/` y coinciden con el documento.
-- **AC-6** ADR, DDR, TASK y `shared/` son coherentes entre sí.
-- **AC-7** La política de reinicio (D4) está documentada y reflejada en el
-  contrato (`SESSION_EXPIRED`) y en `CLAUDE.md`.
-
-**Comportamiento del producto que el contrato debe permitir** (para tareas
-futuras): alias único entre participantes activos; snapshot al entrar (con
-trazos abiertos); trazos en tiempo real entre dos navegadores; chat difundido
-a todos en el mismo orden; reconexión < 30 s conserva alias; > 30 s o reinicio
-libera el alias y vuelve a la entrada.
-
-**Casos límite:** alias duplicado concurrente (gana el primero en llegar al
-servidor); entrada mientras alguien dibuja; autor que se desconecta con un
-trazo abierto; trazo enorme; sala llena; payload malformado o > 16 KiB; reinicio
-con clientes conectados; pestaña duplicada con el mismo token; reintento de
-chat tras perder el ack.
-
-## Test Specification
-
-Ver la estrategia del [plan](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md#estrategia-de-verificación).
-Playwright **no corresponde** en este TASK; es obligatorio (dos contextos
-independientes, entrada tardía y reconexión) en las tareas de colaboración.
-
-## Implementation Plan
-
-Ver [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (COMPLETO, v1).
-
-## Decisiones
-
-- [ADR arquitectura](../adr/ADR-pw-000-definicion-mvp-arquitectura.md)
-- [ADR contrato de eventos](../adr/ADR-pw-000-definicion-mvp-contrato-eventos.md)
-- [DDR experiencia](../design/DDR-pw-000-definicion-mvp-experiencia.md)
-
-## Implementación
-
-**Cambios**
-
-- Plantillas y reglas: `CLAUDE.md`, `.claude/skills/delivery-start/references/plantillas.md`.
-- Monorepo npm workspaces: `package.json`, `tsconfig.base.json`, `.gitignore`;
-  `client/` y `server/` solo con `package.json` (esqueleto).
-- `shared/src`: `limits.ts`, `errors.ts`, `types.ts`, `schemas.ts` (zod),
-  `events.ts`, `coords.ts`, `index.ts`.
-- `shared/test`: `limits`, `alias`, `schemas`, `coords`, `events`.
-- Dependencias nuevas (confirmadas por el usuario): `typescript` 7.0.2,
-  `vitest` 5.1.1, `@types/node`, `zod` 4.6.7, solo en `@pw/shared`.
-
-**Criterios cubiertos**
-
-| Criterio | Verificación |
-|---|---|
-| AC-1 | `shared/test/limits.test.ts` |
-| AC-2 | `shared/test/alias.test.ts` |
-| AC-3 | `shared/test/schemas.test.ts` |
-| AC-4 | `shared/test/coords.test.ts` (320×180, 800×450, 1000×700, 500×900, dpr 2) |
-| AC-5 | `shared/test/events.test.ts` |
-| AC-6 | `shared/test/events.test.ts` compara eventos y códigos con el ADR de contrato; revisión final en `delivery-publish` |
-| AC-7 | `shared/test/events.test.ts` (`SESSION_EXPIRED` y D4) + `CLAUDE.md` |
-
-**Pruebas ejecutadas**
-
-- `npm test` → 5 archivos, 35 pruebas, PASS.
-- `npm run typecheck` → PASS.
-- Integración y Playwright: no aplican (sin servidor ni UI), según el plan.
-
-**Desviaciones**
-
-- TypeScript 7 exige declarar `"types": ["node"]` en `shared/tsconfig.json`
-  para las pruebas que leen los ADR. Sin impacto en el contrato.
-- `ALIAS_PATTERN` permite `.` y `-` al inicio o fin del alias (solo se
-  prohíben espacios dobles y en los extremos), conforme al ADR.
-
-**Deuda técnica**
-
-- No hay `lint` (ESLint no se instaló; decisión del usuario). El script
-  `lint` del plan queda pendiente.
-- `server/` y `client/` no tienen `tsconfig` ni scripts hasta sus tareas.
-- Los límites de tasa y `MAX_MESSAGE_BYTES` son constantes: aún no hay código
-  que los aplique (tareas de servidor).
-
-### Corrección de hallazgos de implementación (2026-11-24, tras REV de `94df2aa`)
-
-| REV | Cambio | Verificación |
-|---|---|---|
-| 02 | Tipos de payload S→C (`ServerEventPayloads`), acks (`JoinAck`, `ResumeAck`, `ChatSendAck`, `AckError`) en `types.ts`; mapas `ClientAcks` y `ClientEventPayloads` en `events.ts` | `hardening.test.ts` (`expectTypeOf`) + typecheck |
-| 08 | `strokeIdSchema = z.uuidv4()` | UUID nil y v1 rechazados |
-| 09 | `chat:send` rechaza C1 (U+0080–U+009F), U+2028 y U+2029 | pruebas con ``, ` `, ` `, ``; 500 caracteres con 5 y 6 saltos |
-| 10 | `toLogical` devuelve 0 si la entrada no es finita; alias acepta marcas combinantes (`\p{M}`) exigiendo al menos una letra o dígito | `NaN`/`Infinity`; hindi, tailandés; marca sola rechazada |
-| 11 | `RATE_STROKE_EVENTS`, `RATE_CHAT = {messages, windowMs}` según ADR; constantes extra tabuladas en el ADR | `limits.test.ts` |
-
-Pruebas añadidas por la revisión (`shared/test/hardening.test.ts`): ancho
-inclusivo 0.001/0.05, punto de 1 y 3 elementos, campos desconocidos en todos los
-eventos, `dpr` fraccionario.
-
-**Resultado:** `npm test` → 6 archivos, 51 pruebas, PASS; `npm run typecheck` → PASS.
-
-**Desviaciones:** ediciones al ADR de contrato solo para reflejar el código
-(fila de alias con marcas combinantes, `CHAT_MAX_NEWLINES`, `LOGICAL_ASPECT`,
-`COORD_DECIMALS`); no cambian el comportamiento aprobado. Hubo que sustituir
-separadores U+2028/U+2029 literales por escapes en la regex de `schemas.ts`.
-
-**Siguen abiertos** (requieren aprobación explícita, no se tocaron): REV-01, 03,
-04, 05, 06 y 07 (SPECIFICATION/ARCHITECTURE).
-
-
-## Testing
-
-Commit revisado: `94df2aa`. Verificaciones del gate:
+Commit revisado: `21a7bdf` (revisión previa sobre `94df2aa`).
 
 | Verificación | Comando | Resultado |
 |---|---|---|
-| Unitarias (AC-1 a AC-7) | `npm test` | PASS: 5 archivos, 35 pruebas |
+| Unitarias (AC-1 a AC-7 y hallazgos corregidos) | `npm test` | PASS: 6 archivos, 51 pruebas |
 | Tipos | `npm run typecheck` | PASS |
 | Seguridad de dependencias | `npm audit` | PASS: 0 vulnerabilidades |
-| Higiene del diff | `git ls-files` (`.env`, logs, `dist/`, `node_modules/`) | PASS: sin secretos ni artefactos |
+| Higiene del diff | `git ls-files` (`.env`, logs, `dist/`, `node_modules/`) | PASS |
+| Bytes de `schemas.ts` | `grep -c` de U+2028/U+2029 literales (revisor) | PASS: 0 |
 | Lint | — | NO EJECUTADA: no existe `lint` (decisión del usuario; deuda registrada) |
 | Integración | — | NO APLICA: sin servidor (ver plan) |
 | Playwright | — | NO APLICA: sin UI ni servidor (ver plan) |
 | Revisión visual | — | NO APLICA: sin cambios de UI |
 
-Observaciones sobre las pruebas (del revisor): `limits.test.ts` repite los valores
-a mano y `events.test.ts` (AC-6) solo comprueba nombres de evento en el ADR; no
-cubren ancho inclusivo (0.001 y 0.05), campos desconocidos fuera de `stroke:start`,
-UUID v4 estricto, punto de 3 elementos ni `dpr` fraccionario.
-
 ## Review
 
-**Veredicto: PASS** (2026-11-24, commit revisado `94df2aa`).
+**Veredicto: PASS** (2026-11-24, commit revisado `21a7bdf`). Segunda revisión
+independiente, con subagente de contexto limpio y sin permisos de edición, sobre
+las correcciones de `94df2aa..21a7bdf`. Sin hallazgos Critical, High ni Medium nuevos.
 
-Revisión independiente con subagente de contexto limpio, sin permisos de edición.
-Sin hallazgos `Critical` ni `High`. Hallazgos abiertos permitidos por el gate:
+Cerrados (verificados): REV-02, 08, 09, 10. REV-11 cerrado parcialmente.
+Nuevos, Low: REV-12 (prueba de alias parcialmente circular) y REV-13 (marcas
+combinantes al inicio de palabra sin precisar).
 
-| REV | Severidad | Categoría | Resumen | Etapa |
+| REV | Severidad | Categoría | Estado | Etapa |
 |---|---|---|---|---|
-| [01](../reviews/REV-2026-11-24-pw-000-definicion-mvp-01.md) | Medium | ARCHITECTURE | Snapshot sin cota agregada de puntos | delivery-start |
-| [02](../reviews/REV-2026-11-24-pw-000-definicion-mvp-02.md) | Medium | PLAN / IMPLEMENTATION | `events.ts` sin tipos de payload S→C, error ni ack | delivery-build |
-| [03](../reviews/REV-2026-11-24-pw-000-definicion-mvp-03.md) | Medium | SPECIFICATION | Sin regla de mapeo esquema → código de error | delivery-start |
-| [04](../reviews/REV-2026-11-24-pw-000-definicion-mvp-04.md) | Medium | SPECIFICATION | "3 mensajes excesivos seguidos" inalcanzable | delivery-start |
-| [05](../reviews/REV-2026-11-24-pw-000-definicion-mvp-05.md) | Medium | SPECIFICATION | Cierre forzado de trazo sin `stroke:ended` definido | delivery-start |
-| [06](../reviews/REV-2026-11-24-pw-000-definicion-mvp-06.md) | Low | SPECIFICATION | `reason: "replaced"` y `lastSeq` sin uso | delivery-start |
-| [07](../reviews/REV-2026-11-24-pw-000-definicion-mvp-07.md) | Low | SPECIFICATION | `seq:advance` fuera de la tabla S→C | delivery-start |
-| [08](../reviews/REV-2026-11-24-pw-000-definicion-mvp-08.md) | Low | IMPLEMENTATION | `z.uuid()` no restringe a v4 | delivery-build |
-| [09](../reviews/REV-2026-11-24-pw-000-definicion-mvp-09.md) | Low | IMPLEMENTATION | Chat acepta U+0085, U+2028, U+2029 | delivery-build |
-| [10](../reviews/REV-2026-11-24-pw-000-definicion-mvp-10.md) | Low | IMPLEMENTATION | `toLogical` propaga `NaN`; `\p{M}` no documentado | delivery-build |
-| [11](../reviews/REV-2026-11-24-pw-000-definicion-mvp-11.md) | Low | IMPLEMENTATION | Nombres de constantes distintos al ADR | delivery-build |
+| [01](../reviews/REV-2026-11-24-pw-000-definicion-mvp-01.md) | Medium | ARCHITECTURE | Abierto | delivery-start |
+| [02](../reviews/REV-2026-11-24-pw-000-definicion-mvp-02.md) | Medium | PLAN / IMPLEMENTATION | Cerrado | — |
+| [03](../reviews/REV-2026-11-24-pw-000-definicion-mvp-03.md) | Medium | SPECIFICATION | Abierto | delivery-start |
+| [04](../reviews/REV-2026-11-24-pw-000-definicion-mvp-04.md) | Medium | SPECIFICATION | Abierto | delivery-start |
+| [05](../reviews/REV-2026-11-24-pw-000-definicion-mvp-05.md) | Medium | SPECIFICATION | Abierto | delivery-start |
+| [06](../reviews/REV-2026-11-24-pw-000-definicion-mvp-06.md) | Low | SPECIFICATION | Abierto | delivery-start |
+| [07](../reviews/REV-2026-11-24-pw-000-definicion-mvp-07.md) | Low | SPECIFICATION | Abierto | delivery-start |
+| [08](../reviews/REV-2026-11-24-pw-000-definicion-mvp-08.md) | Low | IMPLEMENTATION | Cerrado | — |
+| [09](../reviews/REV-2026-11-24-pw-000-definicion-mvp-09.md) | Low | IMPLEMENTATION | Cerrado | — |
+| [10](../reviews/REV-2026-11-24-pw-000-definicion-mvp-10.md) | Low | IMPLEMENTATION | Cerrado | — |
+| [11](../reviews/REV-2026-11-24-pw-000-definicion-mvp-11.md) | Low | IMPLEMENTATION | Parcial | delivery-start (resto) |
+| [12](../reviews/REV-2026-11-24-pw-000-definicion-mvp-12.md) | Low | IMPLEMENTATION | Abierto | delivery-build |
+| [13](../reviews/REV-2026-11-24-pw-000-definicion-mvp-13.md) | Low | IMPLEMENTATION | Abierto | delivery-build |
 
-Resuelto en esta etapa: el encabezado del TASK aún decía "sujetos a aprobación"
-(hallazgo 12 del revisor); se corrigió.
-
-Los hallazgos de categoría `SPECIFICATION` y `ARCHITECTURE` cambian el contrato
-aprobado: requieren aprobación explícita antes de modificarse.
+Los abiertos de categoría `SPECIFICATION` y `ARCHITECTURE` cambian el contrato
+aprobado y requieren aprobación explícita antes de modificarse.
 
 ## Publicación
 
@@ -231,10 +74,11 @@ humana. El merge es manual.
 
 - Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md)
 - Decisiones: ADR de arquitectura y de contrato, DDR (ver `## Decisiones`).
-- Limitaciones: sin lint, integración ni Playwright (no aplican aún); 11 hallazgos abiertos
-  (5 Medium, 6 Low).
-- A revisar por quien apruebe: los 5 Medium (sobre todo REV-01, REV-03, REV-04 y REV-05,
-  que tocan el contrato) y la política de reinicio (ADR arquitectura D4).
+- Limitaciones: sin lint, integración ni Playwright (no aplican aún).
+- Abiertos: 5 Medium/Low de Specification o arquitectura (REV-01, 03, 04, 05; 06 y 07 Low),
+  más REV-11 (resto), 12 y 13 Low de implementación.
+- A revisar por quien apruebe: REV-01, 03, 04 y 05 (tocan el contrato) y la política de
+  reinicio (ADR arquitectura D4).
 
 ## Historial
 
@@ -245,3 +89,4 @@ humana. El merge es manual.
 | 2026-11-24 | ENGINEERING → REVIEW | `shared/` implementado; 35 pruebas y typecheck en PASS |
 | 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `94df2aa`; 11 hallazgos abiertos (5 Medium, 6 Low) en `docs/reviews/` |
 | 2026-11-24 | PUBLISH → ENGINEERING → REVIEW | Corrección de REV-02, 08, 09, 10 y 11 (parcial); 51 pruebas y typecheck en PASS |
+| 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `21a7bdf`; REV-02, 08, 09, 10 cerrados; REV-12 y 13 (Low) nuevos |
