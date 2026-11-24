@@ -3,7 +3,7 @@
 - Trello: [PW-000](https://trello.com/c/TBxriweK/1-pw-000-definici%C3%B3n-del-mvp-y-decisiones-t%C3%A9cnicas) (lista "Alcance y arquitectura")
 - Rama: `task/TASK-pw-000-definicion-mvp`
 - PR: [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1)
-- Etapa actual: `REVIEW` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
+- Etapa actual: `PUBLISH` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
 - Clasificación: `NEEDS_ARCHITECTURE`
 - Diseño requerido: Sí (DDR de pantallas y estados)
 - Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (COMPLETO, v2)
@@ -181,8 +181,7 @@ Ver [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-defi
 |---|---|---|
 | 02 | Tipos de payload S→C (`ServerEventPayloads`), acks (`JoinAck`, `ResumeAck`, `ChatSendAck`, `AckError`) en `types.ts`; mapas `ClientAcks` y `ClientEventPayloads` en `events.ts` | `hardening.test.ts` (`expectTypeOf`) + typecheck |
 | 08 | `strokeIdSchema = z.uuidv4()` | UUID nil y v1 rechazados |
-| 09 | `chat:send` rechaza C1 (U+0080–U+009F), U+2028 y U+2029 | pruebas con ``, ` `, ` `, `
-`; 500 caracteres con 5 y 6 saltos |
+| 09 | `chat:send` rechaza C1 (U+0080–U+009F), U+2028 y U+2029 | pruebas con `\u0085`, `\u2028`, `\u2029` y `\r`; 500 caracteres con 5 y 6 saltos |
 | 10 | `toLogical` devuelve 0 si la entrada no es finita; alias acepta marcas combinantes (`\p{M}`) exigiendo al menos una letra o dígito | `NaN`/`Infinity`; hindi, tailandés; marca sola rechazada |
 | 11 | `RATE_STROKE_EVENTS`, `RATE_CHAT = {messages, windowMs}` según ADR; constantes extra tabuladas en el ADR | `limits.test.ts` |
 
@@ -219,66 +218,70 @@ separadores U+2028/U+2029 literales por escapes en la regex de `schemas.ts`.
 
 ## Testing
 
-Commit revisado: `21a7bdf` (revisión previa sobre `94df2aa`).
+Commit revisado: `895ae4b` (revisiones previas sobre `94df2aa` y `21a7bdf`).
 
 | Verificación | Comando | Resultado |
 |---|---|---|
-| Unitarias (AC-1 a AC-7 y hallazgos corregidos) | `npm test` | PASS: 6 archivos, 51 pruebas |
+| Unitarias (AC-1 a AC-9 y hallazgos corregidos) | `npm test` | PASS: 7 archivos, 61 pruebas |
 | Tipos | `npm run typecheck` | PASS |
 | Seguridad de dependencias | `npm audit` | PASS: 0 vulnerabilidades |
 | Higiene del diff | `git ls-files` (`.env`, logs, `dist/`, `node_modules/`) | PASS |
-| Bytes de `schemas.ts` | `grep -c` de U+2028/U+2029 literales (revisor) | PASS: 0 |
+| Bytes de `schemas.ts` | `grep -c` de U+2028 literal | PASS: 0 |
 | Lint | — | NO EJECUTADA: no existe `lint` (decisión del usuario; deuda registrada) |
-| Integración | — | NO APLICA: sin servidor (ver plan) |
+| Integración | — | NO APLICA: sin servidor (ver plan). Diferidas: cierre por mensaje grande (A3), rechazo por `MAX_TOTAL_POINTS` (A1) y `stroke:ended` en cierres forzados (A4) |
 | Playwright | — | NO APLICA: sin UI ni servidor (ver plan) |
 | Revisión visual | — | NO APLICA: sin cambios de UI |
 
 ## Review
 
-> **Pendiente de nueva revisión.** La enmienda v2 cambió la Specification
-> después de este veredicto; `delivery-publish` debe revisarla. Los estados de
-> REV-01, 03–07 y 11 de la tabla reflejan el momento del veredicto; el estado
-> vigente está en cada REV.
+**Veredicto: PASS** (2026-11-24, commit revisado `895ae4b`). Tercera revisión
+independiente, con subagente de contexto limpio y sin permisos de edición, sobre la
+enmienda de Specification v2 (`21a7bdf..895ae4b`). Sin hallazgos Critical ni High.
 
-**Veredicto anterior: PASS** (2026-11-24, commit revisado `21a7bdf`). Segunda revisión
-independiente, con subagente de contexto limpio y sin permisos de edición, sobre
-las correcciones de `94df2aa..21a7bdf`. Sin hallazgos Critical, High ni Medium nuevos.
+Cerrados y verificados: REV-01, 03, 04, 05, 06, 07 y 11 (resueltos por el
+[ADR de ajustes](../adr/ADR-pw-000-definicion-mvp-ajustes-revision.md), coherentes en
+ADR de contrato, ADR de arquitectura, plan v2, TASK y `shared/`), además de REV-02,
+08, 09 y 10. Verificada también la integridad del TASK y del plan tras la restauración.
 
-Cerrados (verificados): REV-02, 08, 09, 10. REV-11 cerrado parcialmente.
-Nuevos, Low: REV-12 (prueba de alias parcialmente circular) y REV-13 (marcas
-combinantes al inicio de palabra sin precisar).
+Hallazgos nuevos: REV-14 y REV-15 (Medium), REV-16 y REV-17 (Low). Defectos de
+documentación del TASK detectados por el revisor y corregidos en esta etapa (sin REV):
+una fila de tabla partida por caracteres de control literales y la sección Publicación
+con estados obsoletos.
 
-| REV | Severidad | Categoría | Estado | Etapa |
-|---|---|---|---|---|
-| [01](../reviews/REV-2026-11-24-pw-000-definicion-mvp-01.md) | Medium | ARCHITECTURE | Abierto | delivery-start |
-| [02](../reviews/REV-2026-11-24-pw-000-definicion-mvp-02.md) | Medium | PLAN / IMPLEMENTATION | Cerrado | — |
-| [03](../reviews/REV-2026-11-24-pw-000-definicion-mvp-03.md) | Medium | SPECIFICATION | Abierto | delivery-start |
-| [04](../reviews/REV-2026-11-24-pw-000-definicion-mvp-04.md) | Medium | SPECIFICATION | Abierto | delivery-start |
-| [05](../reviews/REV-2026-11-24-pw-000-definicion-mvp-05.md) | Medium | SPECIFICATION | Abierto | delivery-start |
-| [06](../reviews/REV-2026-11-24-pw-000-definicion-mvp-06.md) | Low | SPECIFICATION | Abierto | delivery-start |
-| [07](../reviews/REV-2026-11-24-pw-000-definicion-mvp-07.md) | Low | SPECIFICATION | Abierto | delivery-start |
-| [08](../reviews/REV-2026-11-24-pw-000-definicion-mvp-08.md) | Low | IMPLEMENTATION | Cerrado | — |
-| [09](../reviews/REV-2026-11-24-pw-000-definicion-mvp-09.md) | Low | IMPLEMENTATION | Cerrado | — |
-| [10](../reviews/REV-2026-11-24-pw-000-definicion-mvp-10.md) | Low | IMPLEMENTATION | Cerrado | — |
-| [11](../reviews/REV-2026-11-24-pw-000-definicion-mvp-11.md) | Low | IMPLEMENTATION | Parcial | delivery-start (resto) |
-| [12](../reviews/REV-2026-11-24-pw-000-definicion-mvp-12.md) | Low | IMPLEMENTATION | Abierto | delivery-build |
-| [13](../reviews/REV-2026-11-24-pw-000-definicion-mvp-13.md) | Low | IMPLEMENTATION | Abierto | delivery-build |
+| REV | Severidad | Categoría | Estado |
+|---|---|---|---|
+| [01](../reviews/REV-2026-11-24-pw-000-definicion-mvp-01.md) | Medium | ARCHITECTURE | Cerrado (A1) |
+| [02](../reviews/REV-2026-11-24-pw-000-definicion-mvp-02.md) | Medium | PLAN / IMPLEMENTATION | Cerrado |
+| [03](../reviews/REV-2026-11-24-pw-000-definicion-mvp-03.md) | Medium | SPECIFICATION | Cerrado (A2) |
+| [04](../reviews/REV-2026-11-24-pw-000-definicion-mvp-04.md) | Medium | SPECIFICATION | Cerrado (A3) |
+| [05](../reviews/REV-2026-11-24-pw-000-definicion-mvp-05.md) | Medium | SPECIFICATION | Cerrado (A4) |
+| [06](../reviews/REV-2026-11-24-pw-000-definicion-mvp-06.md) | Low | SPECIFICATION | Cerrado (A5) |
+| [07](../reviews/REV-2026-11-24-pw-000-definicion-mvp-07.md) | Low | SPECIFICATION | Cerrado (A6) |
+| [08](../reviews/REV-2026-11-24-pw-000-definicion-mvp-08.md) | Low | IMPLEMENTATION | Cerrado |
+| [09](../reviews/REV-2026-11-24-pw-000-definicion-mvp-09.md) | Low | IMPLEMENTATION | Cerrado |
+| [10](../reviews/REV-2026-11-24-pw-000-definicion-mvp-10.md) | Low | IMPLEMENTATION | Cerrado |
+| [11](../reviews/REV-2026-11-24-pw-000-definicion-mvp-11.md) | Low | IMPLEMENTATION | Cerrado (A2) |
+| [12](../reviews/REV-2026-11-24-pw-000-definicion-mvp-12.md) | Low | IMPLEMENTATION | Abierto (delivery-build) |
+| [13](../reviews/REV-2026-11-24-pw-000-definicion-mvp-13.md) | Low | IMPLEMENTATION | Abierto (delivery-build) |
+| [14](../reviews/REV-2026-11-24-pw-000-definicion-mvp-14.md) | Medium | IMPLEMENTATION | Abierto (delivery-build) |
+| [15](../reviews/REV-2026-11-24-pw-000-definicion-mvp-15.md) | Medium | SPECIFICATION / IMPLEMENTATION | Abierto (delivery-start, requiere aprobación) |
+| [16](../reviews/REV-2026-11-24-pw-000-definicion-mvp-16.md) | Low | IMPLEMENTATION | Abierto (delivery-build) |
+| [17](../reviews/REV-2026-11-24-pw-000-definicion-mvp-17.md) | Low | ARCHITECTURE | Abierto (delivery-start, documental) |
 
-Los abiertos de categoría `SPECIFICATION` y `ARCHITECTURE` cambian el contrato
-aprobado y requieren aprobación explícita antes de modificarse.
+REV-15 aclara A2 y por tanto cambia la Specification: requiere aprobación explícita.
 
 ## Publicación
 
 PR [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1) listo para revisión
 humana. El merge es manual.
 
-- Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md)
-- Decisiones: ADR de arquitectura y de contrato, DDR (ver `## Decisiones`).
+- Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (v2)
+- Decisiones: ADR de arquitectura, de contrato y de ajustes; DDR (ver `## Decisiones`).
 - Limitaciones: sin lint, integración ni Playwright (no aplican aún).
-- Abiertos: 5 Medium/Low de Specification o arquitectura (REV-01, 03, 04, 05; 06 y 07 Low),
-  más REV-11 (resto), 12 y 13 Low de implementación.
-- A revisar por quien apruebe: REV-01, 03, 04 y 05 (tocan el contrato) y la política de
-  reinicio (ADR arquitectura D4).
+- Abiertos: REV-14 y REV-15 (Medium); REV-12, 13, 16 y 17 (Low).
+- A revisar por quien apruebe: la política de reinicio (ADR arquitectura D4), el tope
+  `MAX_TOTAL_POINTS` y el mapeo de errores (ADR de ajustes A1, A2) y la aclaración
+  pendiente de A2 (REV-15).
 
 ## Historial
 
@@ -292,3 +295,4 @@ humana. El merge es manual.
 | 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `21a7bdf`; REV-02, 08, 09, 10 cerrados; REV-12 y 13 (Low) nuevos |
 | 2026-11-24 | PUBLISH → PLANNING | Usuario aprueba aplicar recomendaciones a REV-01, 03–07; Specification v2 y ADR de ajustes; plan v2 |
 | 2026-11-24 | PLANNING → ENGINEERING → REVIEW | Enmienda aplicada en `shared/`; 61 pruebas y typecheck en PASS |
+| 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `895ae4b`; REV-01, 03–07 y 11 cerrados; REV-14 a 17 nuevos (2 Medium, 2 Low) |

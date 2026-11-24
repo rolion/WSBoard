@@ -4,9 +4,9 @@
 - Commit revisado: 94df2aa
 - Severidad: Medium
 - Categoría: SPECIFICATION
-- Estado: Resuelto por ADR de ajustes A3 y verificado en tests de shared/ (pendiente de verificación en delivery-publish)
+- Estado: Cerrado (verificado en 895ae4b)
 - Criterio / plan vigente: ADR contrato, límites (3 mensajes excesivos seguidos) · PLAN-2026-11-24-pw-000-definicion-mvp v1
-- Etapa responsable: SPECIFICATION → delivery-start (requiere aprobación explícita)
+- Etapa responsable: — (cerrado)
 
 ## Comportamiento esperado
 Regla de desconexión por mensajes de tamaño excesivo que sea alcanzable.

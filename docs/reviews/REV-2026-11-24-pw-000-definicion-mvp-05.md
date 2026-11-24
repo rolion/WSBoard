@@ -4,9 +4,9 @@
 - Commit revisado: 94df2aa
 - Severidad: Medium
 - Categoría: SPECIFICATION
-- Estado: Resuelto por ADR de ajustes A4 y verificado en tests de shared/ (pendiente de verificación en delivery-publish)
+- Estado: Cerrado (verificado en 895ae4b)
 - Criterio / plan vigente: ADR contrato, `stroke:points` y `stroke:end` · PLAN-2026-11-24-pw-000-definicion-mvp v1
-- Etapa responsable: SPECIFICATION → delivery-start (requiere aprobación explícita)
+- Etapa responsable: — (cerrado)
 
 ## Comportamiento esperado
 Se define si el cierre forzado de un trazo (exceso de puntos o caducidad de la gracia) difunde `stroke:ended` y con qué `seq`.

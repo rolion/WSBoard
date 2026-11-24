@@ -4,9 +4,9 @@
 - Commit revisado: 94df2aa
 - Severidad: Low
 - Categoría: SPECIFICATION
-- Estado: Resuelto por ADR de ajustes A5 y verificado en tests de shared/ (pendiente de verificación en delivery-publish)
+- Estado: Cerrado (verificado en 895ae4b)
 - Criterio / plan vigente: ADR contrato, `presence:left` y `session:resume` · PLAN-2026-11-24-pw-000-definicion-mvp v1
-- Etapa responsable: SPECIFICATION → delivery-start (quitar o definir)
+- Etapa responsable: — (cerrado)
 
 ## Comportamiento esperado
 Todos los valores del contrato se emiten o se usan.
