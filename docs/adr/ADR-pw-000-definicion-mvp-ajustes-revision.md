@@ -39,7 +39,7 @@ Cuando falla el esquema de un evento C→S, el código es:
 | `stroke:start`, `stroke:points`, `stroke:end` | cualquier fallo de esquema | `STROKE_INVALID` |
 | `chat:send` | cualquier fallo de esquema | `CHAT_INVALID` |
 | `session:resume` | cualquier fallo de esquema | `PAYLOAD_INVALID` |
-| `session:join` | falla otro campo, o el payload no es un objeto (`null`, `undefined`, cadena, número) | `PAYLOAD_INVALID` |
+| `session:join` | falla otro campo, o el payload no es un objeto (`null`, `undefined`, cadena, número, booleano, array) | `PAYLOAD_INVALID` |
 | evento desconocido o nombre de evento que no es una cadena | — | `PAYLOAD_INVALID` |
 
 Si `join` falla a la vez en `protocol` y `alias`, gana `PROTOCOL_MISMATCH`.

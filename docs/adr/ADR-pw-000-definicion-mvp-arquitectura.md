@@ -111,7 +111,9 @@ considera el que difunde el servidor.
 
 - El servidor envía un **snapshot** completo al aceptar `join` o `resume`:
   participantes, trazos confirmados (incluidos los *abiertos* de otros, con sus
-  puntos hasta ese instante), chat, `seq` actual y `epoch`.
+  puntos hasta ese instante), chat, `seq` actual y `epoch`. En `join`, el
+  `seq` de `presence:joined` se asigna antes de construir el snapshot, de modo
+  que `snapshot.seq` ya lo incluye (ver ajustes A6).
 - Garantía de orden: Node es de un solo hilo. En el mismo turno en que el
   servidor construye el snapshot, suscribe al socket al difusor. Todo evento
   posterior lleva `seq > snapshot.seq`.

@@ -84,7 +84,8 @@ la conexión (comportamiento de `maxHttpBufferSize`); el cliente reintenta con
   caracteres según tabla; **único** sin distinguir mayúsculas entre
   participantes activos o en gracia; sala no llena; el socket no se ha unido ya.
 - Éxito: ack `{ ok: true, sessionToken, snapshot }`. Difunde `presence:joined`
-  a los demás.
+  a los demás. El servidor asigna el `seq` de `presence:joined` y construye el
+  snapshot **después**, así que `snapshot.seq` ya lo incluye (ajustes A6).
 - Errores: `PROTOCOL_MISMATCH`, `ALIAS_INVALID`, `ALIAS_TAKEN`, `ROOM_FULL`,
   `ALREADY_JOINED`.
 
@@ -167,8 +168,9 @@ descartada: `seq` por destinatario, que rompería el orden global.)
 `NOT_JOINED`, `PROTOCOL_MISMATCH`, `ALIAS_INVALID`, `ALIAS_TAKEN`,
 `ROOM_FULL`, `ALREADY_JOINED`, `SESSION_EXPIRED`, `STROKE_INVALID`,
 `STROKE_LIMIT` (ya hay un trazo abierto), `BOARD_FULL`, `CHAT_INVALID`,
-`RATE_LIMITED`, `PAYLOAD_INVALID` (esquema no cumplido en eventos sin código
-propio; ver ajustes A2). Los mensajes de usuario se mapean
+`RATE_LIMITED`, `PAYLOAD_INVALID` (esquema no cumplido en `session:resume`, en
+`session:join` fuera de `protocol` y `alias`, incluido un payload que no es un
+objeto, y en eventos desconocidos; ver ajustes A2). Los mensajes de usuario se mapean
 en el cliente; `message` es solo diagnóstico.
 
 ## Garantías de orden y duplicados

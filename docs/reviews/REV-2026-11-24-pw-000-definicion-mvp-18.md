@@ -4,7 +4,7 @@
 - Commit revisado: d110fd3
 - Severidad: Low
 - Categoría: IMPLEMENTATION
-- Estado: Abierto (permitido por el gate; no bloquea PASS)
+- Estado: Corregido (pendiente de verificación en delivery-publish)
 - Criterio / plan vigente: REV-13 / AC-2 · PLAN-2026-11-24-pw-000-definicion-mvp v2
 - Etapa responsable: IMPLEMENTATION → delivery-build
 

@@ -74,10 +74,13 @@ describe("coords y alias (REV-10)", () => {
   });
   // REV-13: decisión documentada en el ADR de contrato (tabla de límites).
   it("las marcas combinantes pueden aparecer en cualquier posición de una palabra", () => {
-    expect(aliasSchema.safeParse("́a").success).toBe(true);
-    expect(aliasSchema.safeParse("a ́b").success).toBe(true);
-    // NFKC compone "á" en "á" (1 carácter): con otra letra delante alcanza el mínimo.
-    expect(aliasSchema.safeParse("ab́").success).toBe(true);
+    // Marca al inicio de la palabra, al inicio de la segunda palabra y tras una letra base.
+    expect(aliasSchema.safeParse("\u0301a").success).toBe(true);
+    expect(aliasSchema.safeParse("a \u0301b").success).toBe(true);
+    // Con una sola letra base, NFKC compone "a\u0301" en "á" (1 carácter, bajo el mínimo de 2).
+    // Con dos letras base la marca queda sobre la "b" (sin forma compuesta) y el alias mide 3.
+    expect(aliasSchema.safeParse("a\u0301").success).toBe(false);
+    expect(aliasSchema.safeParse("ab\u0301").success).toBe(true);
   });
 });
 

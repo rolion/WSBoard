@@ -4,7 +4,7 @@
 - Commit revisado: 895ae4b
 - Severidad: Low
 - Categoría: ARCHITECTURE
-- Estado: Abierto (permitido por el gate; no bloquea PASS)
+- Estado: Corregido (pendiente de verificación en delivery-publish)
 - Criterio / plan vigente: ADR de ajustes A6; ADR de contrato (`session:join`) y arquitectura D7 · PLAN-2026-11-24-pw-000-definicion-mvp v2
 - Etapa responsable: ARCHITECTURE (documental) → delivery-start
 

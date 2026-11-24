@@ -44,6 +44,16 @@ describe("parseClientEvent", () => {
     expect(code("nope", {})).toBe("PAYLOAD_INVALID");
   });
 
+  // REV-19: payloads que no son un objeto en los eventos que usan PAYLOAD_INVALID.
+  it.each(["session:join", "session:resume"] as const)(
+    "%s con un payload que no es un objeto devuelve PAYLOAD_INVALID",
+    (event) => {
+      for (const payload of [null, undefined, "x", 42, [], true]) {
+        expect(code(event, payload), `${event} ${JSON.stringify(payload)}`).toBe("PAYLOAD_INVALID");
+      }
+    },
+  );
+
   // REV-15 / A2: el mapeo por evento prevalece sobre la regla de payload no objeto.
   it.each([
     ["stroke:start", "STROKE_INVALID"],

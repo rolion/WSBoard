@@ -3,7 +3,7 @@
 - Trello: [PW-000](https://trello.com/c/TBxriweK/1-pw-000-definici%C3%B3n-del-mvp-y-decisiones-t%C3%A9cnicas) (lista "Alcance y arquitectura")
 - Rama: `task/TASK-pw-000-definicion-mvp`
 - PR: [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1)
-- Etapa actual: `PUBLISH` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
+- Etapa actual: `REVIEW` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
 - Clasificación: `NEEDS_ARCHITECTURE`
 - Diseño requerido: Sí (DDR de pantallas y estados)
 - Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (COMPLETO, v2.1)
@@ -255,6 +255,20 @@ y REV-17 (documental).
 - Siguen abiertos: REV-17 (documental) y REV-18 (comentario de prueba), sin aprobar ni
   corregir en esta etapa.
 
+### Corrección de REV-17, 18 y 19 (2026-11-24, tras REV de `0ef6a67`)
+
+| REV | Cambio | Verificación |
+|---|---|---|
+| 17 | El ADR de contrato (`session:join`) y D7 de arquitectura remiten a A6: `snapshot.seq` ya incluye el `seq` de `presence:joined` | Revisión documental |
+| 18 | `hardening.test.ts`: comentario correcto (con una letra base NFKC compone `a` + U+0301 en `á`; con dos letras la marca queda sobre la `b`); escapes `\u0301` explícitos; caso `"a\u0301"` rechazado por el mínimo de 2 | `hardening.test.ts` |
+| 19 | Pruebas de `session:join` y `session:resume` con `null`, `undefined`, `"x"`, `42`, `[]` y `true` → `PAYLOAD_INVALID`; A2 enumera también booleano y array; el ADR de contrato define `PAYLOAD_INVALID` según A2 | `validation.test.ts` |
+
+**Resultado:** `npm test` → 7 archivos, 75 pruebas, PASS; `npm run typecheck` → PASS.
+
+**Cambios de Specification:** ninguno de comportamiento. REV-17 y la enumeración de A2
+son precisiones de redacción dentro de lo ya aprobado (A2 y A6). **Cambios de
+Implementation Plan:** ninguno.
+
 ## Testing
 
 Commit revisado: `0ef6a67` (revisiones previas sobre `94df2aa`, `21a7bdf`, `895ae4b` y `d110fd3`).
@@ -274,7 +288,10 @@ Commit revisado: `0ef6a67` (revisiones previas sobre `94df2aa`, `21a7bdf`, `895a
 
 ## Review
 
-**Veredicto: PASS** (2026-11-24, commit revisado `0ef6a67`). Quinta revisión
+> **Pendiente de nueva revisión.** REV-17, 18 y 19 se corrigieron después de este
+> veredicto; `delivery-publish` debe verificarlas. El estado vigente de cada REV está en su archivo.
+
+**Veredicto anterior: PASS** (2026-11-24, commit revisado `0ef6a67`). Quinta revisión
 independiente, con subagente de contexto limpio y sin permisos de edición, sobre la
 aclaración de A2 (`d110fd3..0ef6a67`). Sin hallazgos Critical, High ni Medium.
 
@@ -340,3 +357,4 @@ humana. El merge es manual.
 | 2026-11-24 | PUBLISH → PLANNING | Usuario aprueba aclarar A2 (REV-15); Specification v2.1 |
 | 2026-11-24 | PLANNING → ENGINEERING → REVIEW | Pruebas de AC-9 ampliadas; 73 pruebas y typecheck en PASS |
 | 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `0ef6a67`; REV-15 cerrado; REV-19 (Low) nuevo |
+| 2026-11-24 | PUBLISH → ENGINEERING → REVIEW | Corrección de REV-17, 18 y 19; 75 pruebas y typecheck en PASS |

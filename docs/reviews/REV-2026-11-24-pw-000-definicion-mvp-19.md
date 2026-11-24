@@ -4,7 +4,7 @@
 - Commit revisado: 0ef6a67
 - Severidad: Low
 - Categoría: IMPLEMENTATION
-- Estado: Abierto (permitido por el gate; no bloquea PASS)
+- Estado: Corregido (pendiente de verificación en delivery-publish)
 - Criterio / plan vigente: AC-9 · PLAN-2026-11-24-pw-000-definicion-mvp v2.1
 - Etapa responsable: IMPLEMENTATION → delivery-build (la parte de redacción de A2 y del ADR de contrato requiere aprobación si cambia el sentido)
 

@@ -86,3 +86,4 @@ navegador independientes**, cubriendo entrada tardía y reconexión.
 - v1 (2026-11-24): versión inicial.
 - v2 (2026-11-24): enmienda de Specification (ADR de ajustes A1–A6): pasos 7 y 8, AC-8 y AC-9. Los cambios de Implementation Plan y de Specification se registran por separado en el TASK. La v1 se conserva en el historial de git.
 - v2.1 (2026-11-24): aclaración de A2 aprobada por el usuario (REV-15). Cambio de Specification: precedencia del mapeo por evento. Cambio de Implementation Plan: solo casos de prueba adicionales de AC-9; sin pasos nuevos.
+- v2.1 (sin cambio de versión, 2026-11-24): casos de prueba adicionales de AC-9 (payloads no objeto en `session:join` y `session:resume`; REV-19). Sin pasos nuevos.
