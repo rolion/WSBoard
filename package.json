@@ -1,0 +1,12 @@
+{
+  "name": "port-webhook",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "workspaces": ["shared", "server", "client"],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": { "node": ">=20" }
+}

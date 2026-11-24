@@ -3,7 +3,7 @@
 - Trello: [PW-000](https://trello.com/c/TBxriweK/1-pw-000-definici%C3%B3n-del-mvp-y-decisiones-t%C3%A9cnicas) (lista "Alcance y arquitectura")
 - Rama: `task/TASK-pw-000-definicion-mvp`
 - PR: [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1)
-- Etapa actual: `ENGINEERING` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
+- Etapa actual: `REVIEW` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
 - Clasificación: `NEEDS_ARCHITECTURE`
 - Diseño requerido: Sí (DDR de pantallas y estados)
 - Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (COMPLETO)
@@ -108,7 +108,49 @@ Ver [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-defi
 
 ## Implementación
 
-_(lo completa `delivery-build`)_
+**Cambios**
+
+- Plantillas y reglas: `CLAUDE.md`, `.claude/skills/delivery-start/references/plantillas.md`.
+- Monorepo npm workspaces: `package.json`, `tsconfig.base.json`, `.gitignore`;
+  `client/` y `server/` solo con `package.json` (esqueleto).
+- `shared/src`: `limits.ts`, `errors.ts`, `types.ts`, `schemas.ts` (zod),
+  `events.ts`, `coords.ts`, `index.ts`.
+- `shared/test`: `limits`, `alias`, `schemas`, `coords`, `events`.
+- Dependencias nuevas (confirmadas por el usuario): `typescript` 7.0.2,
+  `vitest` 5.1.1, `@types/node`, `zod` 4.6.7, solo en `@pw/shared`.
+
+**Criterios cubiertos**
+
+| Criterio | Verificación |
+|---|---|
+| AC-1 | `shared/test/limits.test.ts` |
+| AC-2 | `shared/test/alias.test.ts` |
+| AC-3 | `shared/test/schemas.test.ts` |
+| AC-4 | `shared/test/coords.test.ts` (320×180, 800×450, 1000×700, 500×900, dpr 2) |
+| AC-5 | `shared/test/events.test.ts` |
+| AC-6 | `shared/test/events.test.ts` compara eventos y códigos con el ADR de contrato; revisión final en `delivery-publish` |
+| AC-7 | `shared/test/events.test.ts` (`SESSION_EXPIRED` y D4) + `CLAUDE.md` |
+
+**Pruebas ejecutadas**
+
+- `npm test` → 5 archivos, 35 pruebas, PASS.
+- `npm run typecheck` → PASS.
+- Integración y Playwright: no aplican (sin servidor ni UI), según el plan.
+
+**Desviaciones**
+
+- TypeScript 7 exige declarar `"types": ["node"]` en `shared/tsconfig.json`
+  para las pruebas que leen los ADR. Sin impacto en el contrato.
+- `ALIAS_PATTERN` permite `.` y `-` al inicio o fin del alias (solo se
+  prohíben espacios dobles y en los extremos), conforme al ADR.
+
+**Deuda técnica**
+
+- No hay `lint` (ESLint no se instaló; decisión del usuario). El script
+  `lint` del plan queda pendiente.
+- `server/` y `client/` no tienen `tsconfig` ni scripts hasta sus tareas.
+- Los límites de tasa y `MAX_MESSAGE_BYTES` son constantes: aún no hay código
+  que los aplique (tareas de servidor).
 
 ## Testing
 
@@ -128,3 +170,4 @@ _(lo completa `delivery-publish`)_
 |---|---|---|
 | 2026-11-24 | INVESTIGATION → DESIGN → ARCHITECTURE → PLANNING | Documentación inicial; Specification `READY` con supuestos S1–S6 |
 | 2026-11-24 | PLANNING → ENGINEERING | Usuario aprueba S1–S6 y confirma Socket.IO (S1) frente a `ws`. ADR y DDR pasan a `Aceptado` |
+| 2026-11-24 | ENGINEERING → REVIEW | `shared/` implementado; 35 pruebas y typecheck en PASS |
