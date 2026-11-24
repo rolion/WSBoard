@@ -2,8 +2,8 @@
 
 - Trello: [PW-001](https://trello.com/c/jFaDZadn/2-pw-001-estructura-del-proyecto-y-configuraci%C3%B3n) (lista "En desarrollo")
 - Rama: `task/TASK-pw-001-estructura-configuracion`
-- PR: (se registra al abrirlo)
-- Etapa actual: `PLANNING`
+- PR: [rolion/WSBoard#2](https://github.com/rolion/WSBoard/pull/2)
+- Etapa actual: `ENGINEERING`
 - Clasificación: `NEEDS_PLAN`
 - Diseño requerido: No
 - Plan: [PLAN-2026-11-24-pw-001-estructura-configuracion](../plans/PLAN-2026-11-24-pw-001-estructura-configuracion.md) (COMPACTO)
@@ -157,3 +157,4 @@ sincronización. Decisiones técnicas rutinarias:
 | Fecha | Transición | Nota |
 |---|---|---|
 | 2026-11-24 | INVESTIGATION → PLANNING | Tarjeta leída; usuario aprueba ESLint y dependencias; Specification `READY` |
+| 2026-11-24 | PLANNING → ENGINEERING | PR abierto; se invoca `delivery-build` |
