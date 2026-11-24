@@ -7,6 +7,7 @@ import {
   strokePointsPayloadSchema,
   strokeStartPayloadSchema,
 } from "./schemas";
+import type { ChatSendAck, JoinAck, ResumeAck } from "./types";
 
 /** Eventos C→S con esquema de validación. `session:leave` no lleva payload. */
 export const CLIENT_EVENT_SCHEMAS = {
@@ -36,6 +37,18 @@ export const SERVER_EVENTS = [
   "seq:advance",
 ] as const;
 export type ServerEventName = (typeof SERVER_EVENTS)[number];
+
+/** Mapa evento C→S → respuesta de ack (los demás eventos C→S no responden). */
+export interface ClientAcks {
+  "session:join": JoinAck;
+  "session:resume": ResumeAck;
+  "chat:send": ChatSendAck;
+}
+
+/** Mapa completo de payloads de entrada (derivado de los esquemas). */
+export type ClientEventPayloads = {
+  [K in keyof typeof CLIENT_EVENT_SCHEMAS]: z.infer<(typeof CLIENT_EVENT_SCHEMAS)[K]>;
+};
 
 /** Evento de error S→C, solo al emisor. */
 export const ERROR_EVENT = "error" as const;

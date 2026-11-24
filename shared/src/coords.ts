@@ -37,7 +37,8 @@ export function toPixel(p: Point, rect: CanvasRect): { x: number; y: number } {
 export function toLogical(x: number, y: number, rect: CanvasRect): Point {
   if (rect.width === 0 || rect.height === 0) return [0, 0];
   const f = 10 ** COORD_DECIMALS;
-  const clamp = (n: number) => Math.round(Math.min(1, Math.max(0, n)) * f) / f;
+  const clamp = (n: number) =>
+    Number.isFinite(n) ? Math.round(Math.min(1, Math.max(0, n)) * f) / f : 0;
   return [clamp((x - rect.offsetX) / rect.width), clamp((y - rect.offsetY) / rect.height)];
 }
 

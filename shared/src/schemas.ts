@@ -13,7 +13,10 @@ import {
 
 // ---- Alias -----------------------------------------------------------------
 
-const ALIAS_PATTERN = /^[\p{L}\p{N}_.-]+(?: [\p{L}\p{N}_.-]+)*$/u;
+// Letras (con marcas combinantes), dígitos, `_`, `-`, `.`; al menos una letra o
+// dígito; espacios simples solo entre palabras.
+const ALIAS_PATTERN =
+  /^(?=.*[\p{L}\p{N}])[\p{L}\p{N}\p{M}_.-]+(?: [\p{L}\p{N}\p{M}_.-]+)*$/u;
 
 /** NFKC + recorte. No valida. */
 export function normalizeAlias(raw: string): string {
@@ -53,12 +56,13 @@ export const pointSchema = z.tuple([coord, coord]);
 export const toolSchema = z.enum(["pen", "eraser"]);
 export const colorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 export const widthSchema = z.number().finite().min(STROKE_WIDTH_MIN).max(STROKE_WIDTH_MAX);
-export const strokeIdSchema = z.uuid();
+export const strokeIdSchema = z.uuidv4();
 const batchSchema = z.array(pointSchema).min(1).max(MAX_POINTS_PER_BATCH);
 
 // ---- Chat ------------------------------------------------------------------
 
-const CONTROL_EXCEPT_NEWLINE = /[\u0000-\u0009\u000b-\u001f\u007f]/;
+// Controles C0/C1 salvo \n, más los separadores de línea U+2028 y U+2029.
+const CONTROL_EXCEPT_NEWLINE = /[\u0000-\u0009\u000b-\u001f\u007f-\u009f\u{2028}\u{2029}]/u;
 
 export const chatTextSchema = z
   .string()

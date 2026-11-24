@@ -15,9 +15,10 @@ export const MAX_OPEN_STROKES_PER_PARTICIPANT = 1;
 export const CHAT_MAX_CHARS = 500;
 export const CHAT_MAX_NEWLINES = 5;
 export const CHAT_HISTORY = 200;
-export const RATE_STROKE_EVENTS_PER_SECOND = 60;
-export const RATE_CHAT_MESSAGES = 5;
-export const RATE_CHAT_WINDOW_MS = 10_000;
+/** Eventos `stroke:*` por segundo y socket. */
+export const RATE_STROKE_EVENTS = 60;
+/** Mensajes de chat permitidos por ventana y participante. */
+export const RATE_CHAT = { messages: 5, windowMs: 10_000 } as const;
 export const RECONNECT_GRACE_MS = 30_000;
 
 /** Lienzo lógico 16:9; x e y normalizados en [0, 1]. */

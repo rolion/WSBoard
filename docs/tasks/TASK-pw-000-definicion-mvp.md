@@ -3,7 +3,7 @@
 - Trello: [PW-000](https://trello.com/c/TBxriweK/1-pw-000-definici%C3%B3n-del-mvp-y-decisiones-t%C3%A9cnicas) (lista "Alcance y arquitectura")
 - Rama: `task/TASK-pw-000-definicion-mvp`
 - PR: [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1)
-- Etapa actual: `PUBLISH` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
+- Etapa actual: `REVIEW` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
 - Clasificación: `NEEDS_ARCHITECTURE`
 - Diseño requerido: Sí (DDR de pantallas y estados)
 - Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (COMPLETO)
@@ -152,6 +152,31 @@ Ver [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-defi
 - Los límites de tasa y `MAX_MESSAGE_BYTES` son constantes: aún no hay código
   que los aplique (tareas de servidor).
 
+### Corrección de hallazgos de implementación (2026-11-24, tras REV de `94df2aa`)
+
+| REV | Cambio | Verificación |
+|---|---|---|
+| 02 | Tipos de payload S→C (`ServerEventPayloads`), acks (`JoinAck`, `ResumeAck`, `ChatSendAck`, `AckError`) en `types.ts`; mapas `ClientAcks` y `ClientEventPayloads` en `events.ts` | `hardening.test.ts` (`expectTypeOf`) + typecheck |
+| 08 | `strokeIdSchema = z.uuidv4()` | UUID nil y v1 rechazados |
+| 09 | `chat:send` rechaza C1 (U+0080–U+009F), U+2028 y U+2029 | pruebas con ``, ` `, ` `, ``; 500 caracteres con 5 y 6 saltos |
+| 10 | `toLogical` devuelve 0 si la entrada no es finita; alias acepta marcas combinantes (`\p{M}`) exigiendo al menos una letra o dígito | `NaN`/`Infinity`; hindi, tailandés; marca sola rechazada |
+| 11 | `RATE_STROKE_EVENTS`, `RATE_CHAT = {messages, windowMs}` según ADR; constantes extra tabuladas en el ADR | `limits.test.ts` |
+
+Pruebas añadidas por la revisión (`shared/test/hardening.test.ts`): ancho
+inclusivo 0.001/0.05, punto de 1 y 3 elementos, campos desconocidos en todos los
+eventos, `dpr` fraccionario.
+
+**Resultado:** `npm test` → 6 archivos, 51 pruebas, PASS; `npm run typecheck` → PASS.
+
+**Desviaciones:** ediciones al ADR de contrato solo para reflejar el código
+(fila de alias con marcas combinantes, `CHAT_MAX_NEWLINES`, `LOGICAL_ASPECT`,
+`COORD_DECIMALS`); no cambian el comportamiento aprobado. Hubo que sustituir
+separadores U+2028/U+2029 literales por escapes en la regex de `schemas.ts`.
+
+**Siguen abiertos** (requieren aprobación explícita, no se tocaron): REV-01, 03,
+04, 05, 06 y 07 (SPECIFICATION/ARCHITECTURE).
+
+
 ## Testing
 
 Commit revisado: `94df2aa`. Verificaciones del gate:
@@ -219,3 +244,4 @@ humana. El merge es manual.
 | 2026-11-24 | PLANNING → ENGINEERING | Usuario aprueba S1–S6 y confirma Socket.IO (S1) frente a `ws`. ADR y DDR pasan a `Aceptado` |
 | 2026-11-24 | ENGINEERING → REVIEW | `shared/` implementado; 35 pruebas y typecheck en PASS |
 | 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `94df2aa`; 11 hallazgos abiertos (5 Medium, 6 Low) en `docs/reviews/` |
+| 2026-11-24 | PUBLISH → ENGINEERING → REVIEW | Corrección de REV-02, 08, 09, 10 y 11 (parcial); 51 pruebas y typecheck en PASS |

@@ -4,7 +4,7 @@
 - Commit revisado: 94df2aa
 - Severidad: Low
 - Categoría: IMPLEMENTATION
-- Estado: Abierto (permitido por el gate; no bloquea PASS)
+- Estado: Corregido en delivery-build (pendiente de verificación en delivery-publish)
 - Criterio / plan vigente: ADR contrato, `chat:send` (sin caracteres de control salvo salto de línea) · PLAN-2026-11-24-pw-000-definicion-mvp v1
 - Etapa responsable: IMPLEMENTATION → delivery-build
 

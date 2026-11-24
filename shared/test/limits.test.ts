@@ -16,8 +16,11 @@ describe("limits", () => {
     expect(L.MAX_OPEN_STROKES_PER_PARTICIPANT).toBe(1);
     expect(L.CHAT_MAX_CHARS).toBe(500);
     expect(L.CHAT_HISTORY).toBe(200);
-    expect(L.RATE_STROKE_EVENTS_PER_SECOND).toBe(60);
-    expect([L.RATE_CHAT_MESSAGES, L.RATE_CHAT_WINDOW_MS]).toEqual([5, 10_000]);
+    expect(L.RATE_STROKE_EVENTS).toBe(60);
+    expect(L.RATE_CHAT).toEqual({ messages: 5, windowMs: 10_000 });
+    expect(L.CHAT_MAX_NEWLINES).toBe(5);
+    expect(L.LOGICAL_ASPECT).toBeCloseTo(16 / 9, 12);
+    expect(L.COORD_DECIMALS).toBe(4);
     expect(L.RECONNECT_GRACE_MS).toBe(30_000);
   });
 });

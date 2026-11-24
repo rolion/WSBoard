@@ -51,7 +51,7 @@ interface Snapshot {
 |---|---|
 | `MAX_PARTICIPANTS` | 30 |
 | `ALIAS_MIN` / `ALIAS_MAX` | 2 / 20 caracteres (tras normalizar y recortar) |
-| Alias permitido | letras Unicode, dígitos, espacio, `_`, `-`, `.`; sin espacios dobles ni al inicio/fin |
+| Alias permitido | letras Unicode (con sus marcas combinantes), dígitos, espacio, `_`, `-`, `.`; al menos una letra o dígito; sin espacios dobles ni al inicio/fin |
 | `MAX_MESSAGE_BYTES` (`maxHttpBufferSize`) | 16 384 |
 | `MAX_POINTS_PER_BATCH` | 64 |
 | `MAX_POINTS_PER_STROKE` | 5 000 |
@@ -59,6 +59,8 @@ interface Snapshot {
 | `STROKE_WIDTH_MIN` / `MAX` | 0.001 / 0.05 |
 | `MAX_OPEN_STROKES_PER_PARTICIPANT` | 1 |
 | `CHAT_MAX_CHARS` | 500 (tras recortar; no vacío) |
+| `CHAT_MAX_NEWLINES` | 5 (sin otros caracteres de control, incluidos U+0085, U+2028 y U+2029) |
+| `LOGICAL_ASPECT` / `COORD_DECIMALS` | 16/9 / 4 |
 | `CHAT_HISTORY` | 200 mensajes (se descarta el más antiguo) |
 | `RATE_STROKE_EVENTS` | 60 eventos `stroke:*` por segundo y socket |
 | `RATE_CHAT` | 5 mensajes por 10 s y participante |
