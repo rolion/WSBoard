@@ -1,6 +1,6 @@
 # ADR-pw-000-definicion-mvp-arquitectura — Stack, sala, autoridad del estado y política de reinicio
 
-- Estado: Propuesto (se acepta con la aprobación de la Specification del TASK)
+- Estado: Aceptado (2026-11-24)
 - Tarea: [TASK-pw-000-definicion-mvp](../tasks/TASK-pw-000-definicion-mvp.md)
 - Relacionado: [ADR de contrato de eventos](ADR-pw-000-definicion-mvp-contrato-eventos.md)
 - ADR reemplazados: ninguno (primer ADR del repositorio)

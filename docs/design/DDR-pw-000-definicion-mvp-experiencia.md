@@ -1,6 +1,6 @@
 # DDR-pw-000-definicion-mvp-experiencia — Pantallas y estados del MVP
 
-- Estado: Propuesto (se acepta con la aprobación de la Specification del TASK)
+- Estado: Aceptado (2026-11-24)
 - Tarea: [TASK-pw-000-definicion-mvp](../tasks/TASK-pw-000-definicion-mvp.md)
 - Sistema de diseño: no existe (`docs/design/design-system.md` ausente). Este
   DDR fija solo estructura y estados; los tokens visuales se definirán con el

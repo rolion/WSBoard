@@ -1,6 +1,6 @@
 # ADR-pw-000-definicion-mvp-contrato-eventos — Contrato de eventos WebSocket (v1)
 
-- Estado: Propuesto (se acepta con la aprobación de la Specification del TASK)
+- Estado: Aceptado (2026-11-24)
 - Tarea: [TASK-pw-000-definicion-mvp](../tasks/TASK-pw-000-definicion-mvp.md)
 - Depende de: [ADR de arquitectura](ADR-pw-000-definicion-mvp-arquitectura.md)
 
