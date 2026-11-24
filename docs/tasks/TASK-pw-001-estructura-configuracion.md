@@ -3,7 +3,7 @@
 - Trello: [PW-001](https://trello.com/c/jFaDZadn/2-pw-001-estructura-del-proyecto-y-configuraci%C3%B3n) (lista "En desarrollo")
 - Rama: `task/TASK-pw-001-estructura-configuracion`
 - PR: [rolion/WSBoard#2](https://github.com/rolion/WSBoard/pull/2)
-- Etapa actual: `REVIEW`
+- Etapa actual: `PUBLISH`
 - Clasificación: `NEEDS_PLAN`
 - Diseño requerido: No
 - Plan: [PLAN-2026-11-24-pw-001-estructura-configuracion](../plans/PLAN-2026-11-24-pw-001-estructura-configuracion.md) (COMPACTO)
@@ -205,8 +205,45 @@ vulnerabilidades.
 - Solo se compila el cliente en `build`; el servidor se ejecuta con `tsx`.
 
 ## Testing
+
+Commit revisado: `2060f0b` (revisor independiente, subagente de contexto limpio sin edición).
+
+| Verificación | Comando | Resultado |
+|---|---|---|
+| Lint | `npm run lint` | PASS |
+| Tipos | `npm run typecheck` | PASS |
+| Unitarias e integración | `npm test` | PASS: shared 75, server 16, client 10 |
+| Build | `npm run build` | PASS (cliente 183 kB) |
+| Seguridad de dependencias | `npm audit` | PASS: 0 vulnerabilidades |
+| Config inválida | `PORT=abc`, `ALLOWED_ORIGINS=" "`, puerto ocupado | PASS: mensaje claro y exit 1 |
+| Servidor | `GET /health`; `/socket.io/?transport=polling` | PASS: 200; 400 (sin polling) |
+| Higiene del diff | `git ls-files` | PASS: `.env.example` presentes; sin `.env`, `dist`, logs ni `node_modules` |
+| `npm run dev` y página en navegador | manual (autor) | PASS: Conectar → Conectado, Desconectar → Desconectado, servidor apagado → error. El revisor no lo repitió |
+| Playwright | — | NO APLICA (ver Test Specification) |
+| Revisión visual | — | NO APLICA: pantalla técnica provisional sin DDR |
+
 ## Review
+
+**Veredicto: PASS** (2026-11-24, commit revisado `2060f0b`). Revisión independiente con
+subagente de contexto limpio y sin permisos de edición. AC-1 a AC-7 y los casos límite
+cumplidos. Sin hallazgos Critical, High ni Medium.
+
+| REV | Severidad | Categoría | Criterio | Estado |
+|---|---|---|---|---|
+| [01](../reviews/REV-2026-11-24-pw-001-estructura-configuracion-01.md) | Low | IMPLEMENTATION | AC-3 | Abierto (permitido) |
+| [02](../reviews/REV-2026-11-24-pw-001-estructura-configuracion-02.md) | Low | IMPLEMENTATION | AC-5 | Abierto (permitido) |
+| [03](../reviews/REV-2026-11-24-pw-001-estructura-configuracion-03.md) | Low | IMPLEMENTATION | AC-2 | Abierto (permitido) |
+
+El revisor señaló además que `Testing`, `Review` y `Publicación` estaban vacías; se
+completan aquí.
+
 ## Publicación
+
+PR [rolion/WSBoard#2](https://github.com/rolion/WSBoard/pull/2) listo para revisión humana. El merge es manual.
+
+- Plan: [PLAN-2026-11-24-pw-001-estructura-configuracion](../plans/PLAN-2026-11-24-pw-001-estructura-configuracion.md) (COMPACTO, v1). Sin ADR ni DDR nuevos.
+- Limitaciones: sin prueba automatizada del render de la página ni Playwright; el error de `VITE_SERVER_URL` inválida solo aparece en la consola (REV-01 a 03, Low).
+- A revisar por quien apruebe: dependencias nuevas (ver `## Implementación`), `engines.node >=22.9`, política de `Origin` (se acepta la ausencia de cabecera) y el `eslint-disable` en `shared/src/schemas.ts:65`.
 
 ## Historial
 
@@ -215,3 +252,4 @@ vulnerabilidades.
 | 2026-11-24 | INVESTIGATION → PLANNING | Tarjeta leída; usuario aprueba ESLint y dependencias; Specification `READY` |
 | 2026-11-24 | PLANNING → ENGINEERING | PR abierto; se invoca `delivery-build` |
 | 2026-11-24 | ENGINEERING → REVIEW | Implementado; lint, typecheck, build y 101 pruebas en PASS; comprobación manual en navegador |
+| 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `2060f0b`; REV-01 a 03 (Low) abiertos y permitidos |
