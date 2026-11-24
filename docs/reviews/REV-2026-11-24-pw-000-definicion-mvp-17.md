@@ -4,9 +4,9 @@
 - Commit revisado: 895ae4b
 - Severidad: Low
 - Categoría: ARCHITECTURE
-- Estado: Corregido (pendiente de verificación en delivery-publish)
+- Estado: Cerrado (verificado en ee5931b)
 - Criterio / plan vigente: ADR de ajustes A6; ADR de contrato (`session:join`) y arquitectura D7 · PLAN-2026-11-24-pw-000-definicion-mvp v2
-- Etapa responsable: ARCHITECTURE (documental) → delivery-start
+- Etapa responsable: — (cerrado)
 
 ## Comportamiento esperado
 La semántica de `snapshot.seq` frente a `presence:joined` está donde un implementador del servidor la busca.

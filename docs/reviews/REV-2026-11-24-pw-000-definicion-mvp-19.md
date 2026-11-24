@@ -4,9 +4,9 @@
 - Commit revisado: 0ef6a67
 - Severidad: Low
 - Categoría: IMPLEMENTATION
-- Estado: Corregido (pendiente de verificación en delivery-publish)
+- Estado: Cerrado (verificado en ee5931b)
 - Criterio / plan vigente: AC-9 · PLAN-2026-11-24-pw-000-definicion-mvp v2.1
-- Etapa responsable: IMPLEMENTATION → delivery-build (la parte de redacción de A2 y del ADR de contrato requiere aprobación si cambia el sentido)
+- Etapa responsable: — (cerrado)
 
 ## Comportamiento esperado
 Los payloads que no son un objeto de `session:join` y `session:resume` están protegidos contra regresiones por pruebas, y la redacción del contrato enumera sus casos de forma coherente.

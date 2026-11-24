@@ -3,7 +3,7 @@
 - Trello: [PW-000](https://trello.com/c/TBxriweK/1-pw-000-definici%C3%B3n-del-mvp-y-decisiones-t%C3%A9cnicas) (lista "Alcance y arquitectura")
 - Rama: `task/TASK-pw-000-definicion-mvp`
 - PR: [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1)
-- Etapa actual: `REVIEW` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
+- Etapa actual: `PUBLISH` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
 - Clasificación: `NEEDS_ARCHITECTURE`
 - Diseño requerido: Sí (DDR de pantallas y estados)
 - Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (COMPLETO, v2.1)
@@ -271,16 +271,16 @@ Implementation Plan:** ninguno.
 
 ## Testing
 
-Commit revisado: `0ef6a67` (revisiones previas sobre `94df2aa`, `21a7bdf`, `895ae4b` y `d110fd3`).
+Commit revisado: `ee5931b` (revisiones previas sobre `94df2aa`, `21a7bdf`, `895ae4b`, `d110fd3` y `0ef6a67`).
 
 | Verificación | Comando | Resultado |
 |---|---|---|
-| Unitarias (AC-1 a AC-9 y hallazgos corregidos) | `npm test` | PASS: 7 archivos, 73 pruebas |
+| Unitarias (AC-1 a AC-9 y hallazgos corregidos) | `npm test` | PASS: 7 archivos, 75 pruebas |
 | Tipos | `npm run typecheck` | PASS |
 | Seguridad de dependencias | `npm audit` | PASS: 0 vulnerabilidades |
 | Higiene del diff | `git ls-files` (`.env`, logs, `dist/`, `node_modules/`) | PASS |
-| A2 frente al código | prueba temporal del revisor: 8 eventos × 7 payloads | PASS: sin diferencias |
-| Caracteres de control | escaneo (revisor) | PASS: solo U+2028/U+2029 esperados en `hardening.test.ts` |
+| Hechos de normalización de alias (REV-18) | prueba temporal del revisor | PASS |
+| Caracteres de control | escaneo por codepoint (revisor) | PASS: solo literales intencionales en `hardening.test.ts` (U+2028/2029, hindi, tailandés, marcas solas) |
 | Lint | — | NO EJECUTADA: no existe `lint` (decisión del usuario; deuda registrada) |
 | Integración | — | NO APLICA: sin servidor (ver plan). Diferidas: cierre por mensaje grande (A3), rechazo por `MAX_TOTAL_POINTS` (A1) y `stroke:ended` en cierres forzados (A4) |
 | Playwright | — | NO APLICA: sin UI ni servidor (ver plan) |
@@ -288,44 +288,34 @@ Commit revisado: `0ef6a67` (revisiones previas sobre `94df2aa`, `21a7bdf`, `895a
 
 ## Review
 
-> **Pendiente de nueva revisión.** REV-17, 18 y 19 se corrigieron después de este
-> veredicto; `delivery-publish` debe verificarlas. El estado vigente de cada REV está en su archivo.
+**Veredicto: PASS** (2026-11-24, commit revisado `ee5931b`). Sexta revisión
+independiente, con subagente de contexto limpio y sin permisos de edición, sobre las
+correcciones `0ef6a67..ee5931b`. Sin hallazgos de ninguna severidad. El diff de
+código solo toca dos archivos de prueba; `shared/src` no cambió.
 
-**Veredicto anterior: PASS** (2026-11-24, commit revisado `0ef6a67`). Quinta revisión
-independiente, con subagente de contexto limpio y sin permisos de edición, sobre la
-aclaración de A2 (`d110fd3..0ef6a67`). Sin hallazgos Critical, High ni Medium.
-
-Cerrado y verificado: REV-15. El revisor probó `parseClientEvent` con
-`null`, `undefined`, `"x"`, `42`, `[]`, `true` y `{}` en `session:join`, `session:resume`,
-`stroke:start|points|end`, `chat:send`, `session:leave` y un evento desconocido: el
-código coincide con A2 en todas las combinaciones.
-
-Hallazgo nuevo: REV-19 (Low: faltan pruebas de payloads que no son objeto en
-`session:join` y `session:resume`, y la enumeración de A2 omite `[]` y booleanos).
-Desfases documentales del TASK corregidos en esta etapa (sin REV): estado de REV-15,
-versión del plan en Publicación y cifra de pruebas en Testing.
+Cerrados y verificados: REV-17, 18 y 19. **No quedan hallazgos abiertos.**
 
 | REV | Severidad | Categoría | Estado |
 |---|---|---|---|
-| [01](../reviews/REV-2026-11-24-pw-000-definicion-mvp-01.md) | Medium | ARCHITECTURE | Cerrado (A1) |
+| [01](../reviews/REV-2026-11-24-pw-000-definicion-mvp-01.md) | Medium | ARCHITECTURE | Cerrado |
 | [02](../reviews/REV-2026-11-24-pw-000-definicion-mvp-02.md) | Medium | PLAN / IMPLEMENTATION | Cerrado |
-| [03](../reviews/REV-2026-11-24-pw-000-definicion-mvp-03.md) | Medium | SPECIFICATION | Cerrado (A2) |
-| [04](../reviews/REV-2026-11-24-pw-000-definicion-mvp-04.md) | Medium | SPECIFICATION | Cerrado (A3) |
-| [05](../reviews/REV-2026-11-24-pw-000-definicion-mvp-05.md) | Medium | SPECIFICATION | Cerrado (A4) |
-| [06](../reviews/REV-2026-11-24-pw-000-definicion-mvp-06.md) | Low | SPECIFICATION | Cerrado (A5) |
-| [07](../reviews/REV-2026-11-24-pw-000-definicion-mvp-07.md) | Low | SPECIFICATION | Cerrado (A6) |
+| [03](../reviews/REV-2026-11-24-pw-000-definicion-mvp-03.md) | Medium | SPECIFICATION | Cerrado |
+| [04](../reviews/REV-2026-11-24-pw-000-definicion-mvp-04.md) | Medium | SPECIFICATION | Cerrado |
+| [05](../reviews/REV-2026-11-24-pw-000-definicion-mvp-05.md) | Medium | SPECIFICATION | Cerrado |
+| [06](../reviews/REV-2026-11-24-pw-000-definicion-mvp-06.md) | Low | SPECIFICATION | Cerrado |
+| [07](../reviews/REV-2026-11-24-pw-000-definicion-mvp-07.md) | Low | SPECIFICATION | Cerrado |
 | [08](../reviews/REV-2026-11-24-pw-000-definicion-mvp-08.md) | Low | IMPLEMENTATION | Cerrado |
 | [09](../reviews/REV-2026-11-24-pw-000-definicion-mvp-09.md) | Low | IMPLEMENTATION | Cerrado |
 | [10](../reviews/REV-2026-11-24-pw-000-definicion-mvp-10.md) | Low | IMPLEMENTATION | Cerrado |
-| [11](../reviews/REV-2026-11-24-pw-000-definicion-mvp-11.md) | Low | IMPLEMENTATION | Cerrado (A2) |
+| [11](../reviews/REV-2026-11-24-pw-000-definicion-mvp-11.md) | Low | IMPLEMENTATION | Cerrado |
 | [12](../reviews/REV-2026-11-24-pw-000-definicion-mvp-12.md) | Low | IMPLEMENTATION | Cerrado |
 | [13](../reviews/REV-2026-11-24-pw-000-definicion-mvp-13.md) | Low | IMPLEMENTATION | Cerrado |
 | [14](../reviews/REV-2026-11-24-pw-000-definicion-mvp-14.md) | Medium | IMPLEMENTATION | Cerrado |
-| [15](../reviews/REV-2026-11-24-pw-000-definicion-mvp-15.md) | Medium | SPECIFICATION / IMPLEMENTATION | Cerrado (aclaración de A2) |
+| [15](../reviews/REV-2026-11-24-pw-000-definicion-mvp-15.md) | Medium | SPECIFICATION / IMPLEMENTATION | Cerrado |
 | [16](../reviews/REV-2026-11-24-pw-000-definicion-mvp-16.md) | Low | IMPLEMENTATION | Cerrado |
-| [17](../reviews/REV-2026-11-24-pw-000-definicion-mvp-17.md) | Low | ARCHITECTURE | Abierto (documental) |
-| [18](../reviews/REV-2026-11-24-pw-000-definicion-mvp-18.md) | Low | IMPLEMENTATION | Abierto (comentario de prueba) |
-| [19](../reviews/REV-2026-11-24-pw-000-definicion-mvp-19.md) | Low | IMPLEMENTATION | Abierto (cobertura y redacción de A2) |
+| [17](../reviews/REV-2026-11-24-pw-000-definicion-mvp-17.md) | Low | ARCHITECTURE | Cerrado |
+| [18](../reviews/REV-2026-11-24-pw-000-definicion-mvp-18.md) | Low | IMPLEMENTATION | Cerrado |
+| [19](../reviews/REV-2026-11-24-pw-000-definicion-mvp-19.md) | Low | IMPLEMENTATION | Cerrado |
 
 ## Publicación
 
@@ -334,10 +324,12 @@ humana. El merge es manual.
 
 - Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (v2.1)
 - Decisiones: ADR de arquitectura, de contrato y de ajustes; DDR (ver `## Decisiones`).
-- Limitaciones: sin lint, integración ni Playwright (no aplican aún).
-- Abiertos (todos Low): REV-17, REV-18 y REV-19.
+- Limitaciones: sin lint, integración ni Playwright (no aplican aún); `server/` y `client/`
+  son esqueletos.
+- Hallazgos abiertos: ninguno.
 - A revisar por quien apruebe: la política de reinicio (ADR arquitectura D4), el tope
-  `MAX_TOTAL_POINTS` y el mapeo de errores (ADR de ajustes A1, A2).
+  `MAX_TOTAL_POINTS` y el mapeo de errores (ADR de ajustes A1, A2), y las dependencias
+  nuevas de `shared/` (`typescript` 7, `vitest` 5, `zod` 4, `@types/node`).
 
 ## Historial
 
@@ -358,3 +350,4 @@ humana. El merge es manual.
 | 2026-11-24 | PLANNING → ENGINEERING → REVIEW | Pruebas de AC-9 ampliadas; 73 pruebas y typecheck en PASS |
 | 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `0ef6a67`; REV-15 cerrado; REV-19 (Low) nuevo |
 | 2026-11-24 | PUBLISH → ENGINEERING → REVIEW | Corrección de REV-17, 18 y 19; 75 pruebas y typecheck en PASS |
+| 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `ee5931b`; REV-17, 18 y 19 cerrados; sin hallazgos abiertos |

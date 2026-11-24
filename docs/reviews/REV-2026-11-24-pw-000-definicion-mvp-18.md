@@ -4,9 +4,9 @@
 - Commit revisado: d110fd3
 - Severidad: Low
 - Categoría: IMPLEMENTATION
-- Estado: Corregido (pendiente de verificación en delivery-publish)
+- Estado: Cerrado (verificado en ee5931b)
 - Criterio / plan vigente: REV-13 / AC-2 · PLAN-2026-11-24-pw-000-definicion-mvp v2
-- Etapa responsable: IMPLEMENTATION → delivery-build
+- Etapa responsable: — (cerrado)
 
 ## Comportamiento esperado
 El comentario de `shared/test/hardening.test.ts` describe el caso que prueba.
