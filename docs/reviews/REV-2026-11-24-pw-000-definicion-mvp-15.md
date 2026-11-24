@@ -4,7 +4,7 @@
 - Commit revisado: 895ae4b
 - Severidad: Medium
 - Categoría: SPECIFICATION / IMPLEMENTATION
-- Estado: Abierto (permitido por el gate; no bloquea PASS)
+- Estado: Resuelto por la aclaración de A2 (ADR de ajustes) y pruebas; pendiente de verificación en delivery-publish
 - Criterio / plan vigente: AC-9; ADR de ajustes A2 (última fila y filas de `stroke:*` y `chat:send`) · PLAN-2026-11-24-pw-000-definicion-mvp v2
 - Etapa responsable: SPECIFICATION → delivery-start (aclaración de A2), luego delivery-build
 

@@ -3,10 +3,10 @@
 - Trello: [PW-000](https://trello.com/c/TBxriweK/1-pw-000-definici%C3%B3n-del-mvp-y-decisiones-t%C3%A9cnicas) (lista "Alcance y arquitectura")
 - Rama: `task/TASK-pw-000-definicion-mvp`
 - PR: [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1)
-- Etapa actual: `PUBLISH` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
+- Etapa actual: `REVIEW` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
 - Clasificación: `NEEDS_ARCHITECTURE`
 - Diseño requerido: Sí (DDR de pantallas y estados)
-- Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (COMPLETO, v2)
+- Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (COMPLETO, v2.1)
 - Specification readiness: `READY` (supuestos S1–S6 aprobados el 2026-11-24)
 
 ## Investigación
@@ -111,6 +111,16 @@ texto original se conserva con el cambio señalado.
   define su efecto (`BOARD_FULL`, rechazo del lote, cierre del trazo).
 - **AC-9** `parseClientEvent` valida cada evento C→S y devuelve el código de error
   definido en A2, sin que el servidor reimplemente el mapeo.
+
+### Aclaración de Specification v2.1 (2026-11-24, aprobada por el usuario)
+
+Aprobación: el usuario respondió "Aclarar A2" a la propuesta de resolver REV-15.
+Cambio de Specification: en el [ADR de ajustes](../adr/ADR-pw-000-definicion-mvp-ajustes-revision.md)
+(A2), el mapeo por evento prevalece sobre la regla de "payload que no es un objeto".
+`stroke:*` y `chat:send` devuelven `STROKE_INVALID` y `CHAT_INVALID` ante cualquier
+fallo; `PAYLOAD_INVALID` queda para `session:resume`, `session:join` (cuando no falla
+`protocol` ni `alias`, incluido un payload que no es un objeto) y eventos desconocidos.
+Criterio afectado: **AC-9**. El comportamiento del código no cambia.
 
 ## Test Specification
 
@@ -233,6 +243,18 @@ separadores U+2028/U+2029 literales por escapes en la regex de `schemas.ts`.
 **Siguen abiertos:** REV-15 (aclarar A2, requiere aprobación explícita de Specification)
 y REV-17 (documental).
 
+### Aplicación de la aclaración v2.1 (2026-11-24)
+
+- Cambio de Implementation Plan (registrado por separado): ninguno de pasos ni
+  archivos; solo la verificación de AC-9 gana casos (plan v2.1).
+- `shared/test/validation.test.ts`: la aserción de `stroke:start` con `"texto"` pasa
+  de la prueba de `PAYLOAD_INVALID` a una prueba por evento con cinco payloads que no
+  son objeto (`"texto"`, `42`, `null`, `undefined`, `[]`) para `stroke:start`,
+  `stroke:points`, `stroke:end` y `chat:send`; se añade `session:resume` con `null`.
+- Resultado: `npm test` → 7 archivos, 73 pruebas, PASS; `npm run typecheck` → PASS.
+- Siguen abiertos: REV-17 (documental) y REV-18 (comentario de prueba), sin aprobar ni
+  corregir en esta etapa.
+
 ## Testing
 
 Commit revisado: `d110fd3` (revisiones previas sobre `94df2aa`, `21a7bdf` y `895ae4b`).
@@ -251,7 +273,11 @@ Commit revisado: `d110fd3` (revisiones previas sobre `94df2aa`, `21a7bdf` y `895
 
 ## Review
 
-**Veredicto: PASS** (2026-11-24, commit revisado `d110fd3`). Cuarta revisión
+> **Pendiente de nueva revisión.** La aclaración v2.1 de A2 cambió la Specification
+> después de este veredicto; `delivery-publish` debe revisarla. El estado vigente de cada
+> REV está en su archivo.
+
+**Veredicto anterior: PASS** (2026-11-24, commit revisado `d110fd3`). Cuarta revisión
 independiente, con subagente de contexto limpio y sin permisos de edición, sobre las
 correcciones `895ae4b..d110fd3`. Sin hallazgos Critical, High ni Medium nuevos.
 
@@ -315,3 +341,5 @@ humana. El merge es manual.
 | 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `895ae4b`; REV-01, 03–07 y 11 cerrados; REV-14 a 17 nuevos (2 Medium, 2 Low) |
 | 2026-11-24 | PUBLISH → ENGINEERING → REVIEW | Corrección de REV-12, 13, 14 y 16; 69 pruebas y typecheck en PASS |
 | 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `d110fd3`; REV-12, 13, 14 y 16 cerrados; REV-18 (Low) nuevo |
+| 2026-11-24 | PUBLISH → PLANNING | Usuario aprueba aclarar A2 (REV-15); Specification v2.1 |
+| 2026-11-24 | PLANNING → ENGINEERING → REVIEW | Pruebas de AC-9 ampliadas; 73 pruebas y typecheck en PASS |

@@ -37,11 +37,23 @@ describe("parseClientEvent", () => {
     expect(code("chat:send", { text: "" })).toBe("CHAT_INVALID");
   });
 
-  it("session:resume, payloads no objeto y eventos desconocidos devuelven PAYLOAD_INVALID", () => {
+  it("session:resume, join sin objeto y eventos desconocidos devuelven PAYLOAD_INVALID", () => {
     expect(code("session:resume", {})).toBe("PAYLOAD_INVALID");
+    expect(code("session:resume", null)).toBe("PAYLOAD_INVALID");
     expect(code("session:join", null)).toBe("PAYLOAD_INVALID");
-    expect(code("stroke:start", "texto")).toBe("STROKE_INVALID");
     expect(code("nope", {})).toBe("PAYLOAD_INVALID");
+  });
+
+  // REV-15 / A2: el mapeo por evento prevalece sobre la regla de payload no objeto.
+  it.each([
+    ["stroke:start", "STROKE_INVALID"],
+    ["stroke:points", "STROKE_INVALID"],
+    ["stroke:end", "STROKE_INVALID"],
+    ["chat:send", "CHAT_INVALID"],
+  ] as const)("%s con un payload que no es un objeto devuelve %s", (event, expected) => {
+    for (const payload of ["texto", 42, null, undefined, []]) {
+      expect(code(event, payload), `${event} ${JSON.stringify(payload)}`).toBe(expected);
+    }
   });
 
   // REV-14: nombres heredados de Object.prototype no deben lanzar excepción.

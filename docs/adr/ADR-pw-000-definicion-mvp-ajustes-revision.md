@@ -5,6 +5,7 @@
 - Enmienda (sin reemplazar el resto de su contenido):
   - [ADR de contrato de eventos](ADR-pw-000-definicion-mvp-contrato-eventos.md)
   - [ADR de arquitectura](ADR-pw-000-definicion-mvp-arquitectura.md) (D5, D7, D8)
+- Aclaración posterior: A2 (precedencia del mapeo por evento), REV-15, aprobada por el usuario el 2026-11-24 ("Aclarar A2").
 - Origen: hallazgos REV-01, 03, 04, 05, 06, 07 y el resto de 11
   ([docs/reviews](../reviews)) de la primera revisión de `delivery-publish`.
 - `PROTOCOL_VERSION` sigue en 1: el contrato aún no tiene implementaciones
@@ -37,9 +38,18 @@ Cuando falla el esquema de un evento C→S, el código es:
 | `session:join` | falla `alias` | `ALIAS_INVALID` |
 | `stroke:start`, `stroke:points`, `stroke:end` | cualquier fallo de esquema | `STROKE_INVALID` |
 | `chat:send` | cualquier fallo de esquema | `CHAT_INVALID` |
-| cualquier otro (incluido `session:resume`, payload que no es un objeto, campos con tipo erróneo en `join` fuera de `protocol`/`alias`) | fallo de esquema | `PAYLOAD_INVALID` |
+| `session:resume` | cualquier fallo de esquema | `PAYLOAD_INVALID` |
+| `session:join` | falla otro campo, o el payload no es un objeto (`null`, `undefined`, cadena, número) | `PAYLOAD_INVALID` |
+| evento desconocido o nombre de evento que no es una cadena | — | `PAYLOAD_INVALID` |
 
 Si `join` falla a la vez en `protocol` y `alias`, gana `PROTOCOL_MISMATCH`.
+
+**Precedencia (aclaración, REV-15).** El mapeo por evento prevalece sobre cualquier
+regla general: en `stroke:start`, `stroke:points`, `stroke:end` y `chat:send`,
+**todo** fallo de esquema, incluido un payload que no es un objeto, devuelve
+`STROKE_INVALID` o `CHAT_INVALID`. `PAYLOAD_INVALID` queda reservado para
+`session:resume`, para `session:join` cuando no falla `protocol` ni `alias` (incluido
+un payload que no es un objeto) y para eventos desconocidos.
 `shared/` expone `parseClientEvent(event, payload)`, que valida y devuelve
 `{ ok: true, data }` o `{ ok: false, code, message }`; el servidor no
 reimplementa el mapeo.

@@ -1,7 +1,7 @@
 # PLAN-2026-11-24-pw-000-definicion-mvp
 
 - Modo: **COMPLETO** (define contratos compartidos, autoridad del estado y fronteras entre módulos)
-- Versión: 2
+- Versión: 2.1
 - TASK: [TASK-pw-000-definicion-mvp](../tasks/TASK-pw-000-definicion-mvp.md)
 - Decisiones: [ADR arquitectura](../adr/ADR-pw-000-definicion-mvp-arquitectura.md), [ADR contrato](../adr/ADR-pw-000-definicion-mvp-contrato-eventos.md), [DDR](../design/DDR-pw-000-definicion-mvp-experiencia.md)
 
@@ -62,7 +62,7 @@ Dependencias nuevas (requieren confirmación en `delivery-build`): `typescript`,
 | AC-5 Contrato completo | `events.test.ts`: todo evento del ADR tiene esquema/tipo y código de error declarado | Unitaria |
 | AC-6 Documentación coherente | Revisión de `delivery-publish`: ADR, DDR, TASK y `shared/` coinciden (nombres de evento, errores, límites) | Revisión |
 | AC-8 `MAX_TOTAL_POINTS` (v2) | `limits.test.ts`; revisión del ADR de ajustes A1; efecto en el servidor diferido a integración | Unitaria + Revisión |
-| AC-9 Mapeo de errores (v2) | `validation.test.ts`: cada evento y condición de A2 | Unitaria |
+| AC-9 Mapeo de errores (v2, aclarado en v2.1) | `validation.test.ts`: cada evento y condición de A2, incluidos payloads que no son objeto por evento | Unitaria |
 | AC-7 Política de reinicio | Documentada en ADR (D4) y reflejada en `errors.ts` (`SESSION_EXPIRED`) y `CLAUDE.md` | Revisión + AC-5 |
 
 **Integración:** no aplica en este TASK (no hay servidor). Quedan
@@ -85,3 +85,4 @@ navegador independientes**, cubriendo entrada tardía y reconexión.
 
 - v1 (2026-11-24): versión inicial.
 - v2 (2026-11-24): enmienda de Specification (ADR de ajustes A1–A6): pasos 7 y 8, AC-8 y AC-9. Los cambios de Implementation Plan y de Specification se registran por separado en el TASK. La v1 se conserva en el historial de git.
+- v2.1 (2026-11-24): aclaración de A2 aprobada por el usuario (REV-15). Cambio de Specification: precedencia del mapeo por evento. Cambio de Implementation Plan: solo casos de prueba adicionales de AC-9; sin pasos nuevos.
