@@ -54,7 +54,7 @@ interface Snapshot {
 |---|---|
 | `MAX_PARTICIPANTS` | 30 |
 | `ALIAS_MIN` / `ALIAS_MAX` | 2 / 20 caracteres (tras normalizar y recortar) |
-| Alias permitido | letras Unicode (con sus marcas combinantes), dígitos, espacio, `_`, `-`, `.`; al menos una letra o dígito; sin espacios dobles ni al inicio/fin |
+| Alias permitido | letras Unicode (con sus marcas combinantes, que pueden aparecer en cualquier posición de una palabra), dígitos, espacio, `_`, `-`, `.`; al menos una letra o dígito; sin espacios dobles ni al inicio/fin |
 | `MAX_MESSAGE_BYTES` (`maxHttpBufferSize`) | 16 384 |
 | `MAX_POINTS_PER_BATCH` | 64 |
 | `MAX_POINTS_PER_STROKE` | 5 000 |

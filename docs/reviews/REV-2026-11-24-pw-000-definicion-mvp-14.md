@@ -4,7 +4,7 @@
 - Commit revisado: 895ae4b
 - Severidad: Medium
 - Categoría: IMPLEMENTATION
-- Estado: Abierto (permitido por el gate; no bloquea PASS)
+- Estado: Corregido en delivery-build (pendiente de verificación en delivery-publish)
 - Criterio / plan vigente: AC-9; ADR de ajustes A2 · PLAN-2026-11-24-pw-000-definicion-mvp v2
 - Etapa responsable: IMPLEMENTATION → delivery-build
 

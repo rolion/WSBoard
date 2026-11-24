@@ -13,8 +13,11 @@ const STROKE_EVENTS = new Set<string>(["stroke:start", "stroke:points", "stroke:
  */
 export function parseClientEvent(event: ClientEventName | (string & {}), payload: unknown): ParseResult {
   if (event === "session:leave") return { ok: true, data: undefined };
-  const schema = (CLIENT_EVENT_SCHEMAS as Record<string, (typeof CLIENT_EVENT_SCHEMAS)[keyof typeof CLIENT_EVENT_SCHEMAS]>)[event];
-  if (!schema) return { ok: false, code: "PAYLOAD_INVALID", message: `Evento desconocido: ${event}` };
+  // `hasOwn` evita resolver nombres heredados de Object.prototype ("constructor", "__proto__").
+  if (typeof event !== "string" || !Object.hasOwn(CLIENT_EVENT_SCHEMAS, event)) {
+    return { ok: false, code: "PAYLOAD_INVALID", message: `Evento desconocido: ${String(event)}` };
+  }
+  const schema = CLIENT_EVENT_SCHEMAS[event as keyof typeof CLIENT_EVENT_SCHEMAS];
 
   const res = schema.safeParse(payload);
   if (res.success) return { ok: true, data: res.data };

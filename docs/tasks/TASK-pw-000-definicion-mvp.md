@@ -3,7 +3,7 @@
 - Trello: [PW-000](https://trello.com/c/TBxriweK/1-pw-000-definici%C3%B3n-del-mvp-y-decisiones-t%C3%A9cnicas) (lista "Alcance y arquitectura")
 - Rama: `task/TASK-pw-000-definicion-mvp`
 - PR: [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1)
-- Etapa actual: `PUBLISH` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
+- Etapa actual: `REVIEW` (supuestos S1–S6 aprobados por el usuario el 2026-11-24)
 - Clasificación: `NEEDS_ARCHITECTURE`
 - Diseño requerido: Sí (DDR de pantallas y estados)
 - Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (COMPLETO, v2)
@@ -216,6 +216,23 @@ separadores U+2028/U+2029 literales por escapes en la regex de `schemas.ts`.
 - Incidente: un script de edición del TASK mutiló el archivo en el commit `0f07df0`
   (ancla ambigua); se restauró desde `21a7bdf` conservando el historial.
 
+### Corrección de REV-12, 13, 14 y 16 (2026-11-24, tras REV de `895ae4b`)
+
+| REV | Cambio | Verificación |
+|---|---|---|
+| 14 | `parseClientEvent` usa `Object.hasOwn` y rechaza nombres de evento que no son cadena | `validation.test.ts`: `constructor`, `toString`, `__proto__`, `hasOwnProperty`, `valueOf`, `undefined` y `42` devuelven `PAYLOAD_INVALID` sin lanzar |
+| 12 | La prueba de alias con extremos `.` y `-` usa expectativas literales | `hardening.test.ts` |
+| 13 | Decisión documentada: las marcas combinantes pueden aparecer en cualquier posición de una palabra (fila de alias del ADR de contrato) | `hardening.test.ts`: `"́a"`, `"a ́b"`, `"ab́"` válidos |
+| 16 | La prueba "solo devuelve códigos declarados" exige que cada entrada falle; casos `join` con `undefined` y con `{ alias: 5 }` | `validation.test.ts` |
+
+**Resultado:** `npm test` → 7 archivos, 69 pruebas, PASS; `npm run typecheck` → PASS.
+
+**Desviación:** un caso de mi prueba inicial para REV-13 fallaba porque NFKC compone
+`"á"` en `á` (1 carácter, bajo el mínimo de 2); se corrigió la prueba, no el código.
+
+**Siguen abiertos:** REV-15 (aclarar A2, requiere aprobación explícita de Specification)
+y REV-17 (documental).
+
 ## Testing
 
 Commit revisado: `895ae4b` (revisiones previas sobre `94df2aa` y `21a7bdf`).
@@ -296,3 +313,4 @@ humana. El merge es manual.
 | 2026-11-24 | PUBLISH → PLANNING | Usuario aprueba aplicar recomendaciones a REV-01, 03–07; Specification v2 y ADR de ajustes; plan v2 |
 | 2026-11-24 | PLANNING → ENGINEERING → REVIEW | Enmienda aplicada en `shared/`; 61 pruebas y typecheck en PASS |
 | 2026-11-24 | REVIEW → PUBLISH | Veredicto PASS en `895ae4b`; REV-01, 03–07 y 11 cerrados; REV-14 a 17 nuevos (2 Medium, 2 Low) |
+| 2026-11-24 | PUBLISH → ENGINEERING → REVIEW | Corrección de REV-12, 13, 14 y 16; 69 pruebas y typecheck en PASS |

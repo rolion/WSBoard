@@ -4,7 +4,7 @@
 - Commit revisado: 21a7bdf
 - Severidad: Low
 - Categoría: IMPLEMENTATION
-- Estado: Abierto (permitido por el gate)
+- Estado: Corregido en delivery-build (pendiente de verificación en delivery-publish)
 - Criterio / plan vigente: AC-2 · PLAN-2026-11-24-pw-000-definicion-mvp v1
 - Etapa responsable: IMPLEMENTATION → delivery-build
 

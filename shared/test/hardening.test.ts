@@ -66,10 +66,18 @@ describe("coords y alias (REV-10)", () => {
     expect(aliasSchema.safeParse("́́").success).toBe(false);
   });
   it("extremos `.` y `-` y repeticiones siguen siendo válidos", () => {
-    for (const a of [".a", "a-", "--", "..", "-x-"]) {
-      // "--" y ".." no contienen letra ni dígito: se rechazan.
-      expect(aliasSchema.safeParse(a).success).toBe(/[\p{L}\p{N}]/u.test(a));
+    // Expectativas literales (sin derivarlas de una regex equivalente a la del código).
+    const expected: Record<string, boolean> = { ".a": true, "a-": true, "-x-": true, "--": false, "..": false };
+    for (const [alias, ok] of Object.entries(expected)) {
+      expect(aliasSchema.safeParse(alias).success, alias).toBe(ok);
     }
+  });
+  // REV-13: decisión documentada en el ADR de contrato (tabla de límites).
+  it("las marcas combinantes pueden aparecer en cualquier posición de una palabra", () => {
+    expect(aliasSchema.safeParse("́a").success).toBe(true);
+    expect(aliasSchema.safeParse("a ́b").success).toBe(true);
+    // NFKC compone "á" en "á" (1 carácter): con otra letra delante alcanza el mínimo.
+    expect(aliasSchema.safeParse("ab́").success).toBe(true);
   });
 });
 

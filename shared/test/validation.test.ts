@@ -44,6 +44,25 @@ describe("parseClientEvent", () => {
     expect(code("nope", {})).toBe("PAYLOAD_INVALID");
   });
 
+  // REV-14: nombres heredados de Object.prototype no deben lanzar excepción.
+  it.each(["constructor", "toString", "__proto__", "hasOwnProperty", "valueOf"])(
+    "el evento desconocido %s devuelve PAYLOAD_INVALID sin lanzar",
+    (name) => {
+      expect(() => parseClientEvent(name, {})).not.toThrow();
+      expect(code(name, {})).toBe("PAYLOAD_INVALID");
+    },
+  );
+
+  it("un nombre de evento que no es cadena devuelve PAYLOAD_INVALID", () => {
+    expect(code(undefined as unknown as string, {})).toBe("PAYLOAD_INVALID");
+    expect(code(42 as unknown as string, {})).toBe("PAYLOAD_INVALID");
+  });
+
+  it("session:join con payload undefined o sin protocolo", () => {
+    expect(code("session:join", undefined)).toBe("PAYLOAD_INVALID");
+    expect(code("session:join", { alias: 5 })).toBe("PROTOCOL_MISMATCH");
+  });
+
   it("session:leave no lleva payload", () => {
     expect(parseClientEvent("session:leave", undefined)).toEqual({ ok: true, data: undefined });
   });
@@ -51,6 +70,8 @@ describe("parseClientEvent", () => {
   it("solo devuelve códigos declarados", () => {
     for (const [e, p] of [["session:join", {}], ["stroke:end", 1], ["chat:send", 1], ["session:resume", 1]] as const) {
       const r = parseClientEvent(e, p);
+      // Todas estas entradas son inválidas: la prueba falla si alguna pasara.
+      expect(r.ok).toBe(false);
       if (!r.ok) expect(ERROR_CODES).toContain(r.code);
     }
   });
