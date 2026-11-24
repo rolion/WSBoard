@@ -2,8 +2,8 @@
 
 - Trello: [PW-000](https://trello.com/c/TBxriweK/1-pw-000-definici%C3%B3n-del-mvp-y-decisiones-t%C3%A9cnicas) (lista "Alcance y arquitectura")
 - Rama: `task/TASK-pw-000-definicion-mvp`
-- PR: _(se registra al abrirlo)_
-- Etapa actual: `PLANNING` (pendiente de aprobación de la Specification)
+- PR: [rolion/WSBoard#1](https://github.com/rolion/WSBoard/pull/1)
+- Etapa actual: `ENGINEERING` (bloqueada hasta que se aprueben los supuestos S1–S6)
 - Clasificación: `NEEDS_ARCHITECTURE`
 - Diseño requerido: Sí (DDR de pantallas y estados)
 - Plan: [PLAN-2026-11-24-pw-000-definicion-mvp](../plans/PLAN-2026-11-24-pw-000-definicion-mvp.md) (COMPLETO)
