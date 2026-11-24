@@ -1,0 +1,7 @@
+{
+  "name": "@pw/client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Esqueleto. La implementación llega en tareas posteriores."
+}
