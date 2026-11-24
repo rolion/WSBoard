@@ -3,7 +3,7 @@
 - Trello: [PW-001](https://trello.com/c/jFaDZadn/2-pw-001-estructura-del-proyecto-y-configuraci%C3%B3n) (lista "En desarrollo")
 - Rama: `task/TASK-pw-001-estructura-configuracion`
 - PR: [rolion/WSBoard#2](https://github.com/rolion/WSBoard/pull/2)
-- Etapa actual: `ENGINEERING`
+- Etapa actual: `REVIEW`
 - Clasificación: `NEEDS_PLAN`
 - Diseño requerido: No
 - Plan: [PLAN-2026-11-24-pw-001-estructura-configuracion](../plans/PLAN-2026-11-24-pw-001-estructura-configuracion.md) (COMPACTO)
@@ -148,6 +148,62 @@ sincronización. Decisiones técnicas rutinarias:
   lo resuelven por el workspace.
 
 ## Implementación
+
+**Cambios**
+
+- Raíz: scripts `dev` (concurrently), `build`, `lint`; `engines.node >=22.9`;
+  `eslint.config.js` (flat config, `typescript-eslint`, `react-hooks` en `client/`);
+  `.gitignore` con `!.env.example`.
+- `server/`: `src/config.ts` (`loadConfig`), `src/app.ts` (`createAppServer`: `/health`,
+  Socket.IO solo `websocket`, `maxHttpBufferSize = MAX_MESSAGE_BYTES`, `allowRequest`
+  por `Origin`), `src/index.ts`, `tsconfig.json`, `.env.example`.
+- `client/`: Vite + React 18; `src/config.ts` (`getServerUrl`), `src/connection.ts`
+  (controlador con `attach`/`detach`, socket inyectable), `src/App.tsx` (página técnica con
+  `role="status"`), `index.html`, `vite.config.ts` (puerto 5173), `tsconfig.json`, `.env.example`.
+- `shared/src/schemas.ts`: `eslint-disable no-control-regex` con motivo (la regex de
+  caracteres de control es intencional); sin cambio de comportamiento.
+- `README.md` (UTF-8, antes UTF-16) y `CLAUDE.md` (comandos; se elimina la deuda de lint).
+- Dependencias (aprobadas): `socket.io`, `tsx`, `socket.io-client`, `react@18`,
+  `react-dom@18`, `vite`, `@vitejs/plugin-react`, `@types/react@18`, `@types/react-dom@18`,
+  `concurrently`, `eslint`, `@eslint/js`, `typescript-eslint`, `eslint-plugin-react-hooks`.
+  `typescript`, `vitest` y `@types/node` ya aprobadas en PW-000; se declaran también en
+  `server/` y `client/`. `@pw/shared` se declara como dependencia de ambos.
+
+**Criterios cubiertos**
+
+| Criterio | Verificación |
+|---|---|
+| AC-1 | `server/test/server.test.ts`; `npm run build`; `npm run dev` ejecutado a mano (servidor en 3001, Vite en 5173, `/health` 200) |
+| AC-2 | `server/test/connection.test.ts`; `client/test/connection.test.ts`; página probada en el navegador integrado: Conectar → "Conectado", Desconectar → "Desconectado"; con el servidor apagado → "No se pudo conectar al servidor" |
+| AC-3 | `server/test/config.test.ts`; `client/test/config.test.ts` |
+| AC-4 | `server/test/connection.test.ts` (permitido, no listado, ausente) |
+| AC-5 | `server/test/connection.test.ts` (opción y cierre con `MAX_MESSAGE_BYTES + 1`; cubre la verificación diferida A3 de PW-000) |
+| AC-6 | `npm run lint`, `typecheck`, `test`, `build` en PASS |
+| AC-7 | `README.md`, `server/.env.example`, `client/.env.example` |
+
+**Pruebas ejecutadas:** `npm test` → shared 75, server 16, client 10, PASS;
+`npm run typecheck` PASS; `npm run lint` PASS; `npm run build` PASS; `npm audit` 0
+vulnerabilidades.
+
+**Desviaciones**
+
+- Hallazgo propio durante la comprobación manual: con `StrictMode`, un `dispose()` final
+  dejaba el controlador sin listeners y la página quedaba en "Conectando…". Se sustituyó por
+  `attach()`/`detach()` reiniciables, con prueba del ciclo attach/detach/attach. Sin cambio
+  de Specification ni de plan.
+- `eslint` quedó en 9.39.5 (la resolvió npm; ESLint 10 no se probó y los pares de
+  `typescript-eslint` y `react-hooks` lo admiten). Funciona con TypeScript 7.0.2. Aviso
+  `EBADENGINE` de `eslint-visitor-keys` en Node 22.12 (pide ≥22.13); no bloquea.
+- El cliente usa `reconnection: false` (supuesto A-3).
+
+**Deuda técnica**
+
+- Sin componente de prueba de la página (sin jsdom/Testing Library ni Playwright): la
+  lógica está en `connection.ts` y el render se comprobó a mano.
+- La prueba "mensaje dentro del límite no cierra" usa una espera de 100 ms; es una
+  aserción negativa sin evento observable.
+- Solo se compila el cliente en `build`; el servidor se ejecuta con `tsx`.
+
 ## Testing
 ## Review
 ## Publicación
@@ -158,3 +214,4 @@ sincronización. Decisiones técnicas rutinarias:
 |---|---|---|
 | 2026-11-24 | INVESTIGATION → PLANNING | Tarjeta leída; usuario aprueba ESLint y dependencias; Specification `READY` |
 | 2026-11-24 | PLANNING → ENGINEERING | PR abierto; se invoca `delivery-build` |
+| 2026-11-24 | ENGINEERING → REVIEW | Implementado; lint, typecheck, build y 101 pruebas en PASS; comprobación manual en navegador |
