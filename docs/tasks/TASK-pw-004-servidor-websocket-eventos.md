@@ -3,7 +3,7 @@
 - Trello: [PW-004](https://trello.com/c/YVBpAcr0/5-pw-004-servidor-websocket-y-protocolo-de-eventos) (lista "Backlog MVP")
 - Rama: `task/TASK-pw-004-servidor-websocket-eventos`
 - PR: [rolion/WSBoard#4](https://github.com/rolion/WSBoard/pull/4)
-- Etapa actual: `ENGINEERING`
+- Etapa actual: `REVIEW`
 - Clasificación: `NEEDS_PLAN`
 - Diseño requerido: No
 - Plan: [PLAN-2026-11-25-pw-004-servidor-websocket-eventos](../plans/PLAN-2026-11-25-pw-004-servidor-websocket-eventos.md) (COMPLETO)
@@ -81,6 +81,7 @@ probado. Dependencia: PW-001 (mergeada, `c57c3ab`).
 | S-7 | `ROOM_FULL` cuenta participantes activos y en gracia (30 en total) |
 | S-8 | Un socket que se desconecta sin haberse unido no crea ni modifica estado |
 | S-9 | Precedencia en `session:join`: `ALREADY_JOINED` → esquema (`PROTOCOL_MISMATCH`/`ALIAS_INVALID`/`PAYLOAD_INVALID`) → `ALIAS_TAKEN` → `ROOM_FULL`. `ALREADY_JOINED` va primero para que un socket ya unido no reciba `ALIAS_TAKEN` por su propio alias |
+| S-10 | Los eventos con ack (`session:join`, `session:resume`, `chat:send`) enviados **sin** callback se rechazan con `error PAYLOAD_INVALID` y no cambian el estado (el cliente no podría conocer el resultado). Se comprueba después de `NOT_JOINED` |
 
 ## Specification
 
@@ -194,7 +195,44 @@ quedan como en los ADR de PW-000. Decisiones técnicas rutinarias (detalle en el
 
 ## Implementación
 
-_(lo completa `delivery-build`)_
+**Cambios**
+
+- `server/src/room/room.ts`: `Room`, estado autoritativo síncrono (participantes, trazos, chat, `seq`, `epoch`, tokens, gracia de reconexión, límites A1/A4, `seq:advance`, snapshot). Límites inyectables solo para pruebas (`RoomOptions.limits`).
+- `server/src/room/outbox.ts` (interfaz de salida) y `rate-limit.ts` (ventana deslizante con reloj inyectable).
+- `server/src/transport.ts`: `attachRoom(io, options?)`; un único `socket.onAny` con el orden de comprobaciones del plan, acks/`error`, `session:leave`, reemplazo de socket en `resume`, `try/catch` que nunca propaga.
+- `server/src/app.ts`: crea la sala, la expone como `app.room`, acepta `roomOptions` y cancela temporizadores en `close()`.
+- `README.md`: sección "Protocolo WebSocket".
+- Sin cambios en `shared/`, sin dependencias nuevas.
+
+**Criterios cubiertos**
+
+| Criterio | Verificación |
+|---|---|
+| AC-1 | `room.strokes.test.ts` (sin unirse), `protocol.session.test.ts` (NOT_JOINED, estado intacto) |
+| AC-2 | `room.session.test.ts`, `protocol.session.test.ts` (30+1 clientes, alias, protocolo, ALREADY_JOINED, sin ack) |
+| AC-3 | `room.strokes.test.ts`, `protocol.strokes.test.ts` |
+| AC-4 | `room.chat.test.ts`, `protocol.chat.test.ts` |
+| AC-5 | `protocol.sync.test.ts` (entrada tardía con trazo abierto; `seq` sin huecos con tres clientes), `room.strokes.test.ts` |
+| AC-6 | `room.limits.test.ts`, `rate-limit.test.ts`, `protocol.limits.test.ts` (ráfaga, 16 385 bytes cierra, 16 384 no) |
+| AC-7 | `protocol.errors.test.ts` |
+| AC-8 | `room.session.test.ts` (temporizadores falsos: gracia, cierre de trazo, `timeout`), `protocol.reconnect.test.ts` |
+| AC-9 | `contract.test.ts`; README |
+
+**Pruebas ejecutadas:** `npm test` → shared 75, server 67, client 10, PASS (server repetido 5 veces sin fallos); `npm run lint`, `typecheck`, `build` PASS; `npm audit` 0 vulnerabilidades.
+
+**Desviaciones**
+
+- Se añadió el supuesto S-10 (eventos con ack sin callback → `PAYLOAD_INVALID`); no cambia el ADR.
+- La caducidad de la gracia (30 s) se prueba solo en unitarias con temporizadores falsos; en integración no se simulan para no falsear los temporizadores de Socket.IO. La Test Specification de AC-8 pedía integración para `resume` dentro de la gracia, `SESSION_EXPIRED`, `leave` y reemplazo (cubiertos); el vencimiento real queda en unitarias.
+- `MAX_STROKES`, `MAX_TOTAL_POINTS` y puntos por trazo se prueban con límites reducidos por inyección (`RoomOptions.limits`); los valores de `shared/` no se simulan al tope.
+- `createAppServer` recibe un segundo parámetro opcional `roomOptions` (solo pruebas).
+
+**Deuda técnica**
+
+- Las esperas de integración usan sondeo de estado observable (`until`) con tope de 3 s; no hay esperas fijas, salvo un `setImmediate` en `protocol.sync.test.ts`.
+- Un cliente puede provocar eventos `error` `RATE_LIMITED` a la velocidad de su socket (riesgo registrado en el plan).
+- El ack de `join`/`resume` puede superar `MAX_MESSAGE_BYTES` en el peor caso (~8 MB): el límite aplica a mensajes entrantes. Medición pendiente (ADR de ajustes A1).
+- Sin comprobación en navegador ni Playwright (el cliente aún no consume el protocolo).
 
 ## Testing
 
@@ -214,3 +252,4 @@ _(lo completa `delivery-publish`)_
 |---|---|---|
 | 2026-11-25 | INVESTIGATION → PLANNING | Tarjeta leída; el ADR de PW-000 ya fija el contrato; sin preguntas de producto abiertas; supuestos S-1 a S-8 registrados; Specification `READY` |
 | 2026-11-25 | PLANNING → ENGINEERING | PR abierto (#4); se invoca `delivery-build` |
+| 2026-11-25 | ENGINEERING → REVIEW | Servidor implementado; lint, typecheck, build y 152 pruebas en PASS; sin cambios en `shared/`; supuesto S-10 añadido |
