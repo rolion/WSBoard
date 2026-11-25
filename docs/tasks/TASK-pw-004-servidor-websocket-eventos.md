@@ -3,7 +3,7 @@
 - Trello: [PW-004](https://trello.com/c/YVBpAcr0/5-pw-004-servidor-websocket-y-protocolo-de-eventos) (lista "Backlog MVP")
 - Rama: `task/TASK-pw-004-servidor-websocket-eventos`
 - PR: [rolion/WSBoard#4](https://github.com/rolion/WSBoard/pull/4)
-- Etapa actual: `ENGINEERING`
+- Etapa actual: `REVIEW`
 - Clasificación: `NEEDS_PLAN`
 - Diseño requerido: No
 - Plan: [PLAN-2026-11-25-pw-004-servidor-websocket-eventos](../plans/PLAN-2026-11-25-pw-004-servidor-websocket-eventos.md) (COMPLETO)
@@ -189,6 +189,7 @@ quedan como en los ADR de PW-000. Decisiones técnicas rutinarias (detalle en el
   constantes en `shared/` (S-6).
 - Sin dependencias nuevas: `socket.io`, `socket.io-client`, `zod` (vía `shared`) y Vitest ya
   están aprobadas e instaladas.
+- La ventana de `RATE_STROKE_EVENTS` (1 s) está fija en `server/src/room/room.ts`: `shared/` solo define el número y S-6 impide añadir constantes (REV-06).
 - Identificadores: `participantId` y `ChatMessage.id` con `crypto.randomUUID`/corto opaco;
   `sessionToken` con 16 bytes aleatorios (`crypto.randomBytes`, base64url), nunca derivado
   del alias; `epoch` con `randomUUID` al crear la sala.
@@ -223,6 +224,7 @@ quedan como en los ADR de PW-000. Decisiones técnicas rutinarias (detalle en el
 **Desviaciones**
 
 - Se añadió el supuesto S-10 (eventos con ack sin callback → `PAYLOAD_INVALID`); no cambia el ADR.
+- Corrección tras la revisión 1 (`b339bc4`): REV-05 cambió el código (`transport.ts`: los `stroke:*` ignoran el callback, S-1 cumplido también con ack); REV-01 a REV-04, 07 y 08 son pruebas y README (contigüidad estricta de `seq` en A, B y C; nombre de evento numérico y `null`/objeto; token ausente tras `resume` y `leave`; precedencia `STROKE_LIMIT`/`STROKE_INVALID`; borde de 16 385 bytes). REV-06 queda registrado en Decisiones. Pruebas del servidor: 72.
 - La caducidad de la gracia (30 s) se prueba solo en unitarias con temporizadores falsos; en integración no se simulan para no falsear los temporizadores de Socket.IO. La Test Specification de AC-8 pedía integración para `resume` dentro de la gracia, `SESSION_EXPIRED`, `leave` y reemplazo (cubiertos); el vencimiento real queda en unitarias.
 - `MAX_STROKES`, `MAX_TOTAL_POINTS` y puntos por trazo se prueban con límites reducidos por inyección (`RoomOptions.limits`); los valores de `shared/` no se simulan al tope.
 - `createAppServer` recibe un segundo parámetro opcional `roomOptions` (solo pruebas).
@@ -256,14 +258,14 @@ Revisión 1, commit `b339bc4` (revisor independiente, subagente de contexto limp
 
 | REV | Severidad | Categoría | Criterio | Estado |
 |---|---|---|---|---|
-| [01](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-01.md) | Medium | IMPLEMENTATION | AC-5 | Abierto |
-| [02](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-02.md) | Medium | IMPLEMENTATION | AC-7 / A2 | Abierto |
-| [03](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-03.md) | Low | IMPLEMENTATION | AC-8 | Abierto |
-| [04](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-04.md) | Low | IMPLEMENTATION | AC-3 | Abierto |
-| [05](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-05.md) | Low | IMPLEMENTATION | S-1 | Abierto |
-| [06](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-06.md) | Low | ARCHITECTURE | AC-6 | Abierto |
-| [07](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-07.md) | Low | IMPLEMENTATION | AC-6 | Abierto |
-| [08](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-08.md) | Low | IMPLEMENTATION | AC-9 | Abierto |
+| [01](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-01.md) | Medium | IMPLEMENTATION | AC-5 | Corregido, pendiente de revisión 2 |
+| [02](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-02.md) | Medium | IMPLEMENTATION | AC-7 / A2 | Corregido, pendiente de revisión 2 |
+| [03](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-03.md) | Low | IMPLEMENTATION | AC-8 | Corregido, pendiente de revisión 2 |
+| [04](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-04.md) | Low | IMPLEMENTATION | AC-3 | Corregido, pendiente de revisión 2 |
+| [05](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-05.md) | Low | IMPLEMENTATION | S-1 | Corregido, pendiente de revisión 2 |
+| [06](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-06.md) | Low | ARCHITECTURE | AC-6 | Corregido, pendiente de revisión 2 |
+| [07](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-07.md) | Low | IMPLEMENTATION | AC-6 | Corregido, pendiente de revisión 2 |
+| [08](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-08.md) | Low | IMPLEMENTATION | AC-9 | Corregido, pendiente de revisión 2 |
 
 ## Publicación
 
@@ -277,3 +279,4 @@ _(lo completa `delivery-publish`)_
 | 2026-11-25 | PLANNING → ENGINEERING | PR abierto (#4); se invoca `delivery-build` |
 | 2026-11-25 | ENGINEERING → REVIEW | Servidor implementado; lint, typecheck, build y 152 pruebas en PASS; sin cambios en `shared/`; supuesto S-10 añadido |
 | 2026-11-25 | REVIEW → ENGINEERING | Veredicto FAIL en `b339bc4`: REV-01 y REV-02 (Medium) y REV-03 a REV-08 (Low), todos IMPLEMENTATION salvo REV-06 (ARCHITECTURE, solo registro) |
+| 2026-11-25 | ENGINEERING → REVIEW | REV-01 a REV-08 atendidos; lint, typecheck y 72 pruebas del servidor en PASS (×3); se invoca `delivery-publish` |

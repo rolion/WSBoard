@@ -61,6 +61,7 @@ describe("protocolo: ingreso y presencia", () => {
     await closed;
     await until(() => ana.events("presence:left").length === 1, "presence:left");
     expect(ana.events("presence:left")[0]!.payload).toMatchObject({ participantId: beto.id, reason: "leave" });
+    expect(JSON.stringify(ana.log)).not.toContain(beto.token);
     const again = await newClient(url);
     expect(await again.join("Beto")).toMatchObject({ ok: true });
   });

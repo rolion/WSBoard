@@ -36,6 +36,16 @@ describe("protocolo: límites", () => {
     expect(app.room.isJoined(again.socket.id!)).toBe(true);
   });
 
+  it("el borde exacto: MAX_MESSAGE_BYTES + 1 bytes (16 385) cierra el socket", async () => {
+    const { url } = await startServer();
+    const a = await newClient(url, "Ana");
+    const overhead = JSON.stringify(["nope", ""]).length + 2;
+    const closed = a.closed();
+    a.emit("nope", "x".repeat(MAX_MESSAGE_BYTES + 1 - overhead));
+    await closed;
+    expect(a.socket.connected).toBe(false);
+  });
+
   it("un mensaje de exactamente MAX_MESSAGE_BYTES no cierra el socket", async () => {
     const { url } = await startServer();
     const a = await newClient(url, "Ana");

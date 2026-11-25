@@ -51,6 +51,8 @@ export function attachRoom(io: IoServer, options?: RoomOptions): Room {
     });
 
     function handle(event: unknown, payload: unknown, ack: Ack | undefined): void {
+      // Los `stroke:*` no tienen ack en el contrato: sus fallos siempre salen por el evento `error`.
+      if (typeof event === "string" && event.startsWith("stroke:")) ack = undefined;
       const name = typeof event === "string" ? event : undefined;
       if (name === undefined || !(CLIENT_EVENTS as readonly string[]).includes(name)) {
         const parsed = parseClientEvent(String(event), payload);

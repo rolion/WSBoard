@@ -22,35 +22,40 @@ describe("protocolo: sincronización y orden", () => {
     expect(late.events("stroke:appended")[0]!.payload.seq).toBe(ack.snapshot.seq + 1);
   });
 
-  it("seq sin huecos ni retrocesos para cada cliente mientras otro entra y todos publican", async () => {
+  it("seq sin huecos ni duplicados para cada cliente mientras otro entra y todos publican", async () => {
     const { url } = await startServer();
-    const a = await newClient(url, "Ana");
-    const b = await newClient(url, "Beto");
+    const a = await newClient(url);
+    const b = await newClient(url);
+    const ackA = await a.join("Ana");
+    const ackB = await b.join("Beto");
+    const c = await newClient(url);
+    if (!ackA.ok || !ackB.ok) throw new Error("join falló");
     const sa = strokeBody(1);
     const sb = strokeBody(1);
     a.emit("stroke:start", sa);
     b.emit("stroke:start", sb);
-    const c = await newClient(url);
     const joining = c.join("Carla");
     for (let i = 0; i < 20; i++) {
       a.emit("stroke:points", { id: sa.id, points: [[i / 100, 0.1]] });
       b.emit("stroke:points", { id: sb.id, points: [[i / 100, 0.9]] });
-      void a.chat(`a${i % 4}`);
+      if (i % 7 === 0) void a.chat(`a${i}`); // 3 mensajes: dentro de RATE_CHAT
     }
-    const ack = await joining;
-    if (!ack.ok) throw new Error(ack.error.code);
-    await until(() => a.events("seq:advance").length === 21 && b.events("seq:advance").length === 21, "eventos de trazo");
-    await until(() => a.events("chat:message").length >= 4, "chat");
-    await new Promise<void>((r) => setImmediate(r));
-
-    for (const client of [a, b]) {
+    const ackC = await joining;
+    if (!ackC.ok) throw new Error(ackC.error.code);
+    // Barrera: el servidor procesa en orden, así que cuando "fin" llega a todos ya llegó todo lo anterior.
+    expect(await b.chat("fin")).toEqual({ ok: true });
+    for (const client of [a, b, c]) {
+      await until(() => client.events("chat:message").some((m) => m.payload.message.text === "fin"), "mensaje fin");
+    }
+    const contiguous = (client: typeof a, snapshotSeq: number) => {
       const seqs = client.seqs();
-      const sorted = [...seqs].sort((x, y) => x - y);
-      expect(seqs).toEqual(sorted);
-    }
-    // Para C: lo anterior al snapshot está dentro de él; lo posterior continúa sin hueco.
-    const after = c.seqs().filter((s) => s > ack.snapshot.seq);
-    expect(c.seqs().every((s) => s > ack.snapshot.seq)).toBe(true);
-    after.forEach((s, i) => expect(s).toBe(ack.snapshot.seq + 1 + i));
+      expect(seqs.length).toBeGreaterThan(0);
+      seqs.forEach((s, i) => expect(s).toBe(snapshotSeq + 1 + i));
+    };
+    contiguous(a, ackA.snapshot.seq);
+    contiguous(b, ackB.snapshot.seq);
+    contiguous(c, ackC.snapshot.seq);
+    expect(a.seqs().at(-1)).toBe(b.seqs().at(-1));
+    expect(b.seqs().at(-1)).toBe(c.seqs().at(-1));
   });
 });

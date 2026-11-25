@@ -48,6 +48,44 @@ describe("protocolo: errores de validación", () => {
     expect(await a.chat("ok")).toEqual({ ok: true });
   });
 
+  it("los stroke:* ignoran el callback: todos sus fallos salen por el evento error", async () => {
+    const { url } = await startServer();
+    const ghost = await newClient(url);
+    const a = await newClient(url, "Ana");
+    let acked = 0;
+    ghost.emit("stroke:start", {}, () => acked++); // NOT_JOINED
+    a.emit("stroke:start", null, () => acked++); // esquema
+    a.emit("stroke:end", { id: "no" }, () => acked++);
+    await until(() => ghost.events("error").length === 1 && a.events("error").length === 2, "errores");
+    expect(ghost.events("error")[0]!.payload.code).toBe("NOT_JOINED");
+    expect(a.events("error").map((e) => e.payload.code)).toEqual(["STROKE_INVALID", "STROKE_INVALID"]);
+    expect(acked).toBe(0);
+  });
+
+  it("nombre de evento numérico: PAYLOAD_INVALID sin cambiar estado ni consumir seq", async () => {
+    const { url } = await startServer();
+    const a = await newClient(url, "Ana");
+    const before = a.seqs().length;
+    a.socket.emit(5 as never, { x: 1 });
+    await until(() => a.events("error").length === 1, "error por nombre numérico");
+    expect(a.events("error")[0]!.payload.code).toBe("PAYLOAD_INVALID");
+    expect(a.seqs().length).toBe(before);
+    expect(await a.chat("ok")).toEqual({ ok: true });
+  });
+
+  it("nombre de evento null u objeto: el parser de Socket.IO cierra el socket; el participante queda en gracia", async () => {
+    const { url } = await startServer();
+    const a = await newClient(url, "Ana");
+    const b = await newClient(url, "Beto");
+    const closed = a.closed();
+    a.socket.io.engine.send("2[null]"); // paquete EVENT con nombre null, sin pasar por el cliente
+    await closed;
+    await until(() => b.events("presence:status").length === 1, "presence:status");
+    expect(b.events("presence:status")[0]!.payload).toMatchObject({ participantId: a.id, status: "reconnecting" });
+    const c = await newClient(url);
+    expect((await c.resume(a.token)).ok).toBe(true);
+  });
+
   it("chat:send sin acknowledgement se rechaza sin difundir", async () => {
     const { url } = await startServer();
     const a = await newClient(url, "Ana");

@@ -48,6 +48,17 @@ describe("Room: trazos", () => {
     expect(room.strokeStart("a", strokeStart())).toEqual({ ok: true });
   });
 
+  it("precedencia: repetir el id del trazo abierto propio es STROKE_LIMIT; el de uno cerrado, STROKE_INVALID", () => {
+    const { room, out } = setup();
+    const s = strokeStart();
+    room.strokeStart("a", s);
+    const before = out.sent.length;
+    expect(room.strokeStart("a", s)).toMatchObject({ code: "STROKE_LIMIT" });
+    expect(out.sent.length).toBe(before); // no duplica ni difunde
+    room.strokeEnd("a", { id: s.id });
+    expect(room.strokeStart("a", s)).toMatchObject({ code: "STROKE_INVALID" });
+  });
+
   it("solo el autor modifica su trazo abierto", () => {
     const { room, out } = setup();
     const s = strokeStart();

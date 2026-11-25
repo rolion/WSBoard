@@ -85,7 +85,13 @@ Reglas de comportamiento:
   (`SESSION_EXPIRED`).
 - Una conexión caída pasa a `reconnecting` durante `RECONNECT_GRACE_MS` (30 s); `session:resume` la recupera.
   Vencida la gracia se cierra su trazo abierto y se difunde `presence:left` (`timeout`).
-- Un mensaje mayor que `MAX_MESSAGE_BYTES` cierra el socket (el cliente debe usar `session:resume`).
+- Un mensaje mayor que `MAX_MESSAGE_BYTES` cierra el socket (el cliente debe usar `session:resume`). Lo mismo ocurre con un
+  paquete cuyo nombre de evento es `null` u objeto: lo rechaza el parser de Socket.IO antes de llegar al servidor y el
+  participante pasa a `reconnecting`. Un nombre numérico, desconocido o heredado (`constructor`) recibe `PAYLOAD_INVALID`.
+- Precedencia en `session:join`: `ALREADY_JOINED` → esquema (`PROTOCOL_MISMATCH`/`ALIAS_INVALID`/`PAYLOAD_INVALID`) →
+  `ALIAS_TAKEN` → `ROOM_FULL`. `session:leave` y los eventos de trazo o chat antes de unirse reciben `NOT_JOINED`.
+- Los `stroke:*` no tienen ack: sus errores siempre salen por el evento `error`, aunque el cliente pase un callback.
+  Con un trazo propio abierto, repetir su id en `stroke:start` da `STROKE_LIMIT`; repetir el de uno cerrado o ajeno, `STROKE_INVALID`.
 - Correspondencia con los nombres de la tarjeta PW-004: `join`/`join:error` → `session:join` (ack);
   `presence:update` → `presence:joined|status|left`; `drawing:stroke:*` → `stroke:*`; `board:snapshot` → `snapshot`
   en el ack; `chat:message` → `chat:send` + `chat:message`; `disconnect` → evento nativo de Socket.IO.

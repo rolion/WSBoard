@@ -6,7 +6,7 @@
 - Plan vigente: [PLAN-2026-11-25-pw-004-servidor-websocket-eventos](../plans/PLAN-2026-11-25-pw-004-servidor-websocket-eventos.md) v1
 - Commit revisado: `b339bc4` (revisor independiente, subagente de contexto limpio sin edición)
 - Etapa responsable: ENGINEERING (`delivery-build`): registrar en el TASK
-- Estado: Abierto
+- Estado: Corregido en ENGINEERING, pendiente de verificación en la revisión 2
 
 ## Esperado
 

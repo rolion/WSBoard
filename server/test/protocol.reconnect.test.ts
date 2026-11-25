@@ -19,6 +19,7 @@ describe("protocolo: reconexión", () => {
     expect(res.snapshot.participants.find((p) => p.id === a.id)!.status).toBe("connected");
     await until(() => b.events("presence:status").length === 2, "connected");
     expect(b.events("presence:status")[1]!.payload.status).toBe("connected");
+    expect(JSON.stringify(b.log)).not.toContain(a.token); // el token no se difunde
     // el alias sigue reservado y la sesión sigue siendo la misma
     expect(await (await newClient(url)).join("Ana")).toMatchObject({ ok: false, error: { code: "ALIAS_TAKEN" } });
   });
