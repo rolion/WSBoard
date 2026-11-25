@@ -2,8 +2,8 @@
 
 - Trello: [PW-002](https://trello.com/c/hlZtHlxy/3-pw-002-acceso-por-alias-%C3%BAnico) (lista "Backlog MVP")
 - Rama: `task/TASK-pw-002-acceso-alias-unico`
-- PR: _pendiente_
-- Etapa actual: `PLANNING`
+- PR: [rolion/WSBoard#3](https://github.com/rolion/WSBoard/pull/3)
+- Etapa actual: `ENGINEERING`
 - Clasificación: `NEEDS_PLAN`
 - Diseño requerido: Sí ([DDR](../design/DDR-pw-002-acceso-alias-unico-entrada.md))
 - Plan: [PLAN-2026-11-25-pw-002-acceso-alias-unico](../plans/PLAN-2026-11-25-pw-002-acceso-alias-unico.md) (COMPLETO)
@@ -247,3 +247,4 @@ _Pendiente._
 | Fecha | Transición | Nota |
 |---|---|---|
 | 2026-11-25 | INVESTIGATION → DESIGN → PLANNING | Tarjeta leída; usuario decide alcance (núcleo de sala mínimo), gracia + resume y Playwright; Specification `READY` |
+| 2026-11-25 | PLANNING → ENGINEERING | PR abierto; se invoca `delivery-build` |
