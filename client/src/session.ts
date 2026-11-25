@@ -128,8 +128,12 @@ export function createSessionController(socket: SocketLike, options: SessionOpti
     if (reason === "io client disconnect") return;
     if (state.screen === "room") {
       // El servidor cerró el socket (token reutilizado en otra pestaña): la sesión ya no es nuestra.
-      if (reason === "io server disconnect") expire();
-      else set({ link: "connecting" });
+      // Socket.IO no reconecta tras `io server disconnect`: se abre un socket nuevo para poder volver a entrar.
+      if (reason === "io server disconnect") {
+        expire();
+        set({ link: "connecting" });
+        socket.connect();
+      } else set({ link: "connecting" });
       return;
     }
     set({ link: "connecting", ...(state.submitting ? { submitting: false, error: "OFFLINE" as const } : {}) });

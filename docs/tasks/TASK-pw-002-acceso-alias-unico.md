@@ -295,9 +295,34 @@ independientes); `npm audit` 0 vulnerabilidades.
 
 ## Testing
 
-_Pendiente._
+Primera revisión, commit `da407b1` (revisor independiente, subagente de contexto limpio sin edición):
+
+| Verificación | Comando | Resultado |
+|---|---|---|
+| Lint | `npm run lint` | PASS |
+| Tipos | `npm run typecheck` (incluye `e2e/`) | PASS |
+| Unitarias e integración | `npm test` | PASS: shared 75, server 57, client 27 |
+| Build | `npm run build` | PASS |
+| Seguridad de dependencias | `npm audit` | PASS: 0 vulnerabilidades |
+| E2E, dos contextos | `PW_CHANNEL=chrome npm run test:e2e` | PASS: 6 de 6 |
+| Higiene del diff | `git ls-files`, `.gitignore` | PASS |
+| Revisión visual en navegador | — | NO EJECUTADA (el render se cubre con E2E; ver Implementación) |
 
 ## Review
+
+**Primera revisión: FAIL** (2026-11-25, commit `da407b1`). Un hallazgo Medium abierto incumple AC-8/AC-9
+(reintento sin recargar). Contrato, ADR y plan sin hallazgos: no cambia ningún evento, `seq`, sincronización ni autoridad.
+
+| REV | Severidad | Categoría | Criterio | Estado |
+|---|---|---|---|---|
+| [01](../reviews/REV-2026-11-25-pw-002-acceso-alias-unico-01.md) | Medium | IMPLEMENTATION | AC-9 / AC-8 | Corregido en `delivery-build`, pendiente de verificar |
+| [02](../reviews/REV-2026-11-25-pw-002-acceso-alias-unico-02.md) | Low | DESIGN | AC-8 | Abierto (permitido): parpadeo de la entrada durante el `resume` inicial |
+| [03](../reviews/REV-2026-11-25-pw-002-acceso-alias-unico-03.md) | Low | IMPLEMENTATION | AC-8 | Corregido en `delivery-build`, pendiente de verificar |
+
+**Corrección (ENGINEERING, tras REV de `da407b1`).** REV-01: tras `io server disconnect` el controlador
+pasa a `link: "connecting"` y llama a `socket.connect()`; la prueba de cliente comprueba la reconexión y que
+se puede volver a enviar `join`. REV-03: E2E con `getByRole("alert")`/`getByRole("status")` y foco tras el error.
+Sin cambios de Specification ni de plan. `npm run lint`, `typecheck`, `test` (159) y `test:e2e` (6) en PASS.
 
 _Pendiente._
 
@@ -312,3 +337,5 @@ _Pendiente._
 | 2026-11-25 | INVESTIGATION → DESIGN → PLANNING | Tarjeta leída; usuario decide alcance (núcleo de sala mínimo), gracia + resume y Playwright; Specification `READY` |
 | 2026-11-25 | PLANNING → ENGINEERING | PR abierto; se invoca `delivery-build` |
 | 2026-11-25 | ENGINEERING → REVIEW | Implementado; lint, typecheck, build, 159 pruebas unitarias/integración y 6 E2E en PASS |
+| 2026-11-25 | REVIEW → ENGINEERING | FAIL en `da407b1`: REV-01 (Medium). REV-02 y 03 (Low) |
+| 2026-11-25 | ENGINEERING → REVIEW | Corrección de REV-01 y REV-03; 159 pruebas y 6 E2E en PASS |

@@ -179,13 +179,19 @@ describe("reanudación (resume)", () => {
   });
 
   it("si el servidor cierra el socket estando en la sala (token en otra pestaña), vuelve a la entrada", () => {
-    const { c, fire, emitted, mem } = setup();
+    const { c, fire, emitted, mem, socket } = setup();
     fire("connect");
     c.join("Ada");
     emitted[0]!.cb!(null, joinOk());
     fire("disconnect", "io server disconnect");
-    expect(c.getState()).toMatchObject({ screen: "entry", notice: "session-expired" });
+    expect(c.getState()).toMatchObject({ screen: "entry", notice: "session-expired", link: "connecting" });
     expect(mem.data.size).toBe(0);
+    // REV-01: Socket.IO no reconecta solo tras `io server disconnect`.
+    expect(socket.connect).toHaveBeenCalledTimes(2);
+    fire("connect");
+    expect(c.getState()).toMatchObject({ screen: "entry", link: "connected", notice: "session-expired" });
+    c.join("Bea");
+    expect(emitted).toHaveLength(2);
   });
 
   it("un resume sin respuesta conserva el token y reintenta la conexión", () => {

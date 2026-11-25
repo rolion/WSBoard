@@ -38,7 +38,7 @@ test("E2E-1: un alias libre ingresa y ve la sala", async ({ browser }) => {
   await enter(page, alias);
   await inRoom(page, alias);
   await expect(page.getByTestId("entry-screen")).toHaveCount(0);
-  await expect(page.getByTestId("connection-indicator")).toHaveText("Conectado");
+  await expect(page.getByRole("status").filter({ hasText: "Conectado" })).toBeVisible();
 });
 
 test("E2E-2: alias repetido (otras mayúsculas) o inválido muestra error y permite reintentar", async ({ browser }) => {
@@ -49,8 +49,10 @@ test("E2E-2: alias repetido (otras mayúsculas) o inválido muestra error y perm
   await inRoom(a, alias);
 
   await enter(b, alias.toLowerCase());
-  await expect(b.getByTestId("alias-error")).toContainText("ya está en uso");
+  // El error se anuncia (`alert`) y el foco vuelve al campo para reintentar (REV-03).
+  await expect(b.getByRole("alert")).toContainText("ya está en uso");
   await expect(b.getByLabel("Tu nombre")).toBeEnabled();
+  await expect(b.getByLabel("Tu nombre")).toBeFocused();
   await expect(b.getByLabel("Tu nombre")).toHaveAttribute("aria-invalid", "true");
   await expect(b.getByTestId("room-screen")).toHaveCount(0);
 
@@ -105,7 +107,7 @@ test("E2E-5: un token que ya no vale devuelve a la entrada con aviso", async ({ 
 
   await a.evaluate(() => sessionStorage.setItem("pw.sessionToken", "token-que-no-existe"));
   await a.reload();
-  await expect(a.getByTestId("session-notice")).toContainText("Tu sesión expiró");
+  await expect(a.getByRole("status").filter({ hasText: "Tu sesión expiró" })).toBeVisible();
   await expect(a.getByTestId("room-screen")).toHaveCount(0);
   await expect(a.getByRole("button", { name: "Entrar" })).toBeEnabled();
   expect(await a.evaluate(() => sessionStorage.getItem("pw.sessionToken"))).toBeNull();
