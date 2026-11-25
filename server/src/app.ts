@@ -2,15 +2,21 @@ import { createServer, type Server as HttpServer } from "node:http";
 import { Server as IoServer } from "socket.io";
 import { MAX_MESSAGE_BYTES } from "@pw/shared";
 import type { ServerConfig } from "./config";
+import { Room, type RoomOptions } from "./room";
+import { attachSession, createRoomHooks } from "./session";
 
 export interface AppServer {
   httpServer: HttpServer;
   io: IoServer;
+  room: Room;
   listen(port: number): Promise<number>;
   close(): Promise<void>;
 }
 
-export function createAppServer(config: Pick<ServerConfig, "allowedOrigins">): AppServer {
+export function createAppServer(
+  config: Pick<ServerConfig, "allowedOrigins">,
+  roomOptions: RoomOptions = {},
+): AppServer {
   const httpServer = createServer((req, res) => {
     if (req.method === "GET" && req.url === "/health") {
       res.writeHead(200, { "content-type": "application/json" });
@@ -30,9 +36,13 @@ export function createAppServer(config: Pick<ServerConfig, "allowedOrigins">): A
     },
   });
 
+  const room = new Room(createRoomHooks(io), roomOptions);
+  attachSession(io, room);
+
   return {
     httpServer,
     io,
+    room,
     listen(port) {
       return new Promise((resolve, reject) => {
         httpServer.once("error", reject);
@@ -44,6 +54,7 @@ export function createAppServer(config: Pick<ServerConfig, "allowedOrigins">): A
       });
     },
     close() {
+      room.dispose();
       return new Promise((resolve) => {
         void io.close(() => resolve());
       });

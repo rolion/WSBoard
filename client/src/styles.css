@@ -1,0 +1,42 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #111;
+  background: #fff;
+}
+.app {
+  max-width: 28rem;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  font-size: 1rem;
+}
+button {
+  min-height: 44px;
+  padding: 0 1.25rem;
+  font-size: 1rem;
+  margin-top: 0.75rem;
+}
+.help {
+  color: #444;
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0;
+}
+.error {
+  color: #b00020;
+  margin: 0.5rem 0 0;
+}
+.notice {
+  background: #eef4ff;
+  border: 1px solid #9db7e8;
+  padding: 0.75rem;
+}

@@ -3,7 +3,7 @@
 - Trello: [PW-002](https://trello.com/c/hlZtHlxy/3-pw-002-acceso-por-alias-%C3%BAnico) (lista "Backlog MVP")
 - Rama: `task/TASK-pw-002-acceso-alias-unico`
 - PR: [rolion/WSBoard#3](https://github.com/rolion/WSBoard/pull/3)
-- Etapa actual: `ENGINEERING`
+- Etapa actual: `REVIEW`
 - Clasificación: `NEEDS_PLAN`
 - Diseño requerido: Sí ([DDR](../design/DDR-pw-002-acceso-alias-unico-entrada.md))
 - Plan: [PLAN-2026-11-25-pw-002-acceso-alias-unico](../plans/PLAN-2026-11-25-pw-002-acceso-alias-unico.md) (COMPLETO)
@@ -228,7 +228,70 @@ arquitectura. Decisiones técnicas rutinarias:
 
 ## Implementación
 
-_Pendiente (`delivery-build`)._
+**Cambios**
+
+- `server/src/room.ts` (nuevo): clase `Room` (estado en memoria, reserva atómica del alias,
+  tokens, `epoch`, `seq`, gracia con reloj inyectable). No importa Socket.IO.
+- `server/src/session.ts` (nuevo): cableado Socket.IO con `onAny`: `parseClientEvent`,
+  errores por ack o por evento `error` (A-1), puerta `NOT_JOINED` (A-2), sala `main`,
+  `session:leave`, desconexión; sin tokens en logs.
+- `server/src/app.ts`: `createAppServer(config, roomOptions)` crea la `Room`, la conecta y la
+  libera en `close()`. Expone `room` para pruebas.
+- `client/src/session.ts` (nuevo): controlador de sesión aislado de React (`attach`/`detach`
+  reiniciables), `client/src/alias-messages.ts`, `EntryScreen.tsx`, `RoomPlaceholder.tsx`,
+  `styles.css`; `App.tsx` elige pantalla por estado.
+- `client/src/connection.ts`: queda `SocketLike` + `createSocket` con reconexión automática
+  (backoff 500 ms–3 s). Se **elimina** `ConnectionController` y su prueba: la página técnica de
+  PW-001 ya no existe y el controlador de sesión lo sustituye (supersede el supuesto A-3 de PW-001).
+- `e2e/alias.spec.ts`, `playwright.config.ts` (puertos propios 3101/5273, `PW_CHANNEL`),
+  `e2e/tsconfig.json`; scripts `test:e2e` y `typecheck` (incluye E2E); `README.md`, `CLAUDE.md`,
+  `.gitignore`.
+- Dependencia nueva (aprobada): `@playwright/test` 1.65 (devDependency raíz).
+
+**Criterios cubiertos**
+
+| Criterio | Verificación |
+|---|---|
+| AC-1 | `room.test.ts`, `session.test.ts` (ingreso), E2E-1 |
+| AC-2 | `room.test.ts`, `session.test.ts` (inválido, repetido por mayúsculas/NFKC, protocolo, llena, ya unido, reintento en el mismo socket), E2E-2 |
+| AC-3 | `session.test.ts` (10 sockets simultáneos, variantes del alias: 1 `ok`, 9 `ALIAS_TAKEN`), `room.test.ts` |
+| AC-4 | `room.test.ts` (temporizadores falsos), `session.test.ts` (gracia 150 ms con espera por evento), E2E-3 |
+| AC-5 | `session.test.ts` (`NOT_JOINED` por evento y por ack, `PAYLOAD_INVALID`, estado intacto), E2E-6 |
+| AC-6 | `room.test.ts`, `session.test.ts` (resume en gracia, vencido, otro `epoch`, socket reemplazado, `ALREADY_JOINED`), E2E-4, E2E-5 |
+| AC-7 | `session.test.ts` (dos clientes, `seq` contiguo, `snapshot.seq`), `room.test.ts` |
+| AC-8 | `alias-messages.test.ts`, E2E-1/2/3 (foco, `aria-invalid`, `role="alert"`) |
+| AC-9 | `client/test/session.test.ts`, E2E-4, E2E-5 |
+
+**Pruebas ejecutadas** (commit de trabajo previo al de registro): `npm run lint` PASS;
+`npm run typecheck` PASS (incluye `e2e/`); `npm test` → shared 75, server 57, client 27, PASS;
+`npm run build` PASS; `PW_CHANNEL=chrome npm run test:e2e` → 6 pruebas PASS (dos contextos
+independientes); `npm audit` 0 vulnerabilidades.
+
+**Desviaciones**
+
+- *Hallazgo propio:* una prueba reveló que un ack tardío de un `join` cuyo envío ya se canceló
+  (socket caído) llevaba a la sala. El controlador ahora lo ignora si ya no hay envío en curso.
+- `ALREADY_JOINED` se evalúa **antes** que `ALIAS_TAKEN` (un socket unido que repite su alias no
+  debe ver "alias en uso"); el ADR lo lista al final. Sin cambio observable para los demás casos.
+- `ConnectionController` y `client/test/connection.test.ts` eliminados (ver Cambios).
+- Los E2E usan puertos 3101/5273 y `reuseExistingServer: false`: los puertos 3001/5173 estaban
+  ocupados por `npm run dev` de otro worktree y reutilizarlos habría probado código ajeno.
+- Los E2E se ejecutaron con el Chrome instalado (`PW_CHANNEL=chrome`); **no** se descargó el
+  Chromium de Playwright (la descarga requiere confirmación del usuario).
+- No se hizo comprobación visual en el navegador integrado; el render se verificó con E2E
+  (roles, textos, foco).
+
+**Deuda técnica**
+
+- Si el ack de `join` se pierde con la conexión, el servidor ya reservó el alias y el cliente no
+  conoce el token: el usuario ve `ALIAS_TAKEN` con su propio alias hasta que vence la gracia (30 s).
+- Un `resume` sin ack reintenta cada `ackTimeoutMs` indefinidamente; no hay tope de reintentos.
+- Sin límite de tasa para `session:join` (A-5): un cliente puede ocupar los 30 cupos.
+- Una prueba usa una espera de 120 ms (aserción negativa sin evento observable: el alias
+  del socket reemplazado sigue vivo tras la gracia).
+- Sin pruebas de render de componentes (jsdom/Testing Library); lo cubren los E2E.
+- `stroke:*` y `chat:send` se ignoran tras unirse hasta PW-004 (A-3).
+- El contador de la gracia no se muestra (DDR; PW-010).
 
 ## Testing
 
@@ -248,3 +311,4 @@ _Pendiente._
 |---|---|---|
 | 2026-11-25 | INVESTIGATION → DESIGN → PLANNING | Tarjeta leída; usuario decide alcance (núcleo de sala mínimo), gracia + resume y Playwright; Specification `READY` |
 | 2026-11-25 | PLANNING → ENGINEERING | PR abierto; se invoca `delivery-build` |
+| 2026-11-25 | ENGINEERING → REVIEW | Implementado; lint, typecheck, build, 159 pruebas unitarias/integración y 6 E2E en PASS |
