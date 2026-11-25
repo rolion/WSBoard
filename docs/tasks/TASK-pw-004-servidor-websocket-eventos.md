@@ -3,7 +3,7 @@
 - Trello: [PW-004](https://trello.com/c/YVBpAcr0/5-pw-004-servidor-websocket-y-protocolo-de-eventos) (lista "Backlog MVP")
 - Rama: `task/TASK-pw-004-servidor-websocket-eventos`
 - PR: [rolion/WSBoard#4](https://github.com/rolion/WSBoard/pull/4)
-- Etapa actual: `REVIEW`
+- Etapa actual: `ENGINEERING`
 - Clasificación: `NEEDS_PLAN`
 - Diseño requerido: No
 - Plan: [PLAN-2026-11-25-pw-004-servidor-websocket-eventos](../plans/PLAN-2026-11-25-pw-004-servidor-websocket-eventos.md) (COMPLETO)
@@ -236,11 +236,34 @@ quedan como en los ADR de PW-000. Decisiones técnicas rutinarias (detalle en el
 
 ## Testing
 
-_(lo completa `delivery-publish`)_
+Revisión 1, commit `b339bc4` (revisor independiente, subagente de contexto limpio sin edición).
+
+| Verificación | Comando | Resultado |
+|---|---|---|
+| Lint | `npm run lint` | PASS |
+| Tipos | `npm run typecheck` | PASS |
+| Unitarias e integración | `npm test` | PASS: shared 75, server 67, client 10; server ×3 sin flakiness |
+| Build | `npm run build` | PASS |
+| Dependencias | `npm audit` | PASS: 0 vulnerabilidades |
+| Higiene del diff | `git ls-files`, grep de secretos | PASS |
+| AC-1 a AC-9 | pruebas del TASK | Código conforme; verificación incompleta en AC-5 y AC-7 (REV-01, REV-02) |
+| Playwright | — | NO APLICA (ver Test Specification) |
+| Revisión visual | — | NO APLICA (sin UI) |
 
 ## Review
 
-_(lo completa `delivery-publish`)_
+**Veredicto 1: FAIL** (2026-11-25, commit `b339bc4`). El revisor no encontró defectos de correctitud en `server/src/`; falla porque hay verificaciones exigidas por la Test Specification sin ejecutar (AC-5 sin comprobar ausencia de huecos en A y B; AC-7 sin nombre de evento no cadena). Devuelto a `delivery-build`.
+
+| REV | Severidad | Categoría | Criterio | Estado |
+|---|---|---|---|---|
+| [01](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-01.md) | Medium | IMPLEMENTATION | AC-5 | Abierto |
+| [02](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-02.md) | Medium | IMPLEMENTATION | AC-7 / A2 | Abierto |
+| [03](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-03.md) | Low | IMPLEMENTATION | AC-8 | Abierto |
+| [04](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-04.md) | Low | IMPLEMENTATION | AC-3 | Abierto |
+| [05](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-05.md) | Low | IMPLEMENTATION | S-1 | Abierto |
+| [06](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-06.md) | Low | ARCHITECTURE | AC-6 | Abierto |
+| [07](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-07.md) | Low | IMPLEMENTATION | AC-6 | Abierto |
+| [08](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-08.md) | Low | IMPLEMENTATION | AC-9 | Abierto |
 
 ## Publicación
 
@@ -253,3 +276,4 @@ _(lo completa `delivery-publish`)_
 | 2026-11-25 | INVESTIGATION → PLANNING | Tarjeta leída; el ADR de PW-000 ya fija el contrato; sin preguntas de producto abiertas; supuestos S-1 a S-8 registrados; Specification `READY` |
 | 2026-11-25 | PLANNING → ENGINEERING | PR abierto (#4); se invoca `delivery-build` |
 | 2026-11-25 | ENGINEERING → REVIEW | Servidor implementado; lint, typecheck, build y 152 pruebas en PASS; sin cambios en `shared/`; supuesto S-10 añadido |
+| 2026-11-25 | REVIEW → ENGINEERING | Veredicto FAIL en `b339bc4`: REV-01 y REV-02 (Medium) y REV-03 a REV-08 (Low), todos IMPLEMENTATION salvo REV-06 (ARCHITECTURE, solo registro) |
