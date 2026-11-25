@@ -3,9 +3,10 @@
 Pizarra colaborativa en tiempo real con chat y presencia. Una sala pública única,
 usuarios identificados por alias y estado solo en memoria.
 
-Estado actual: estructura del proyecto (PW-001). El servidor acepta conexiones
-WebSocket y el cliente tiene una página técnica con **Conectar** / **Desconectar**.
-La pizarra, el chat y la presencia llegan en tareas posteriores.
+Estado actual: acceso por alias único (PW-002). Al abrir la página se pide un nombre;
+el servidor lo valida y lo reserva (sin distinguir mayúsculas) y lo libera al salir o al
+expirar la sesión (30 s tras perder la conexión). La sala es provisional: la pizarra, el
+chat y la lista de participantes llegan en tareas posteriores.
 
 ## Requisitos
 
@@ -24,7 +25,8 @@ npm run dev
 ```
 
 Arranca el servidor (`http://localhost:3001`) y el cliente (`http://localhost:5173`).
-Abre el cliente, pulsa **Conectar** (estado "Conectado") y **Desconectar**.
+Abre el cliente, elige un nombre y pulsa **Entrar**; abre otra pestaña (o ventana
+privada) para probar un alias repetido. Una pestaña recargada conserva su alias.
 Comprobación del servidor: `http://localhost:3001/health` responde `{"status":"ok"}`.
 
 Por separado: `npm run dev -w @pw/server` y `npm run dev -w @pw/client`.
@@ -49,6 +51,14 @@ Todas son opcionales. Copia el ejemplo que necesites a `.env` en el mismo direct
 | `npm run lint` | ESLint en todo el repositorio |
 | `npm run typecheck` | `tsc` en cada workspace |
 | `npm test` | Vitest en cada workspace |
+| `npm run test:e2e` | Playwright con dos contextos de navegador (ver abajo) |
+
+## Pruebas E2E
+
+`npm run test:e2e` arranca servidor y cliente en los puertos 3101 y 5273 (no choca con
+`npm run dev`) y ejecuta `e2e/*.spec.ts`. Requiere un navegador: `npx playwright install chromium`
+o, para usar el Chrome instalado, `PW_CHANNEL=chrome npm run test:e2e` (PowerShell:
+`$env:PW_CHANNEL="chrome"; npm run test:e2e`).
 
 ## Estructura
 

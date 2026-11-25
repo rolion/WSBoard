@@ -26,6 +26,7 @@ npm run lint      # ESLint (flat config en la raíz)
 npm test          # Vitest en todos los workspaces
 npm run typecheck # tsc en todos los workspaces
 npm run build     # compila el cliente
+npm run test:e2e  # Playwright (puertos 3101/5273; PW_CHANNEL=chrome usa el Chrome instalado)
 ```
 
 Node >= 22.9. Variables de entorno: ver `README.md` (`.env.example`).
