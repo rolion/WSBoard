@@ -62,6 +62,7 @@ const batchSchema = z.array(pointSchema).min(1).max(MAX_POINTS_PER_BATCH);
 // ---- Chat ------------------------------------------------------------------
 
 // Controles C0/C1 salvo \n, más los separadores de línea U+2028 y U+2029.
+// eslint-disable-next-line no-control-regex -- los caracteres de control son el objetivo de la regla
 const CONTROL_EXCEPT_NEWLINE = /[\u0000-\u0009\u000b-\u001f\u007f-\u009f\u{2028}\u{2029}]/u;
 
 export const chatTextSchema = z

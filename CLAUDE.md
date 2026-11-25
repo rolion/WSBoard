@@ -21,11 +21,14 @@ Decisiones vigentes: `docs/adr/`, `docs/design/`.
 
 ```
 npm install
+npm run dev       # servidor (3001) y cliente (5173)
+npm run lint      # ESLint (flat config en la raíz)
 npm test          # Vitest en todos los workspaces
 npm run typecheck # tsc en todos los workspaces
+npm run build     # compila el cliente
 ```
 
-`lint` aún no existe (deuda técnica: ver TASK-pw-000-definicion-mvp).
+Node >= 22.9. Variables de entorno: ver `README.md` (`.env.example`).
 
 ## Reglas
 
