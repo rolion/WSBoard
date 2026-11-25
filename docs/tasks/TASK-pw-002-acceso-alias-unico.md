@@ -3,7 +3,7 @@
 - Trello: [PW-002](https://trello.com/c/hlZtHlxy/3-pw-002-acceso-por-alias-%C3%BAnico) (lista "Backlog MVP")
 - Rama: `task/TASK-pw-002-acceso-alias-unico`
 - PR: [rolion/WSBoard#3](https://github.com/rolion/WSBoard/pull/3)
-- Etapa actual: `REVIEW`
+- Etapa actual: `PUBLISH`
 - Clasificación: `NEEDS_PLAN`
 - Diseño requerido: Sí ([DDR](../design/DDR-pw-002-acceso-alias-unico-entrada.md))
 - Plan: [PLAN-2026-11-25-pw-002-acceso-alias-unico](../plans/PLAN-2026-11-25-pw-002-acceso-alias-unico.md) (COMPLETO)
@@ -310,14 +310,21 @@ Primera revisión, commit `da407b1` (revisor independiente, subagente de context
 
 ## Review
 
+**Veredicto final: PASS** (2026-11-25, commit revisado `3f05ff6`). Segunda revisión independiente (mismo
+subagente, sin edición) sobre `da407b1..3f05ff6`: REV-01 reproducido de nuevo con servidor y
+`socket.io-client` reales y resuelto (tras `io server disconnect` el socket queda conectado y `join` entra sin
+recargar; sin bucle de reconexión; `leave()` y attach/detach/attach sin regresiones). REV-03 resuelto. Sin
+hallazgos nuevos. Lint, typecheck, `npm test` (shared 75, server 57, client 27), build, `npm audit` (0) y los 6 E2E
+(`PW_CHANNEL=chrome`) en PASS. Abierto y permitido: REV-02 (Low).
+
 **Primera revisión: FAIL** (2026-11-25, commit `da407b1`). Un hallazgo Medium abierto incumple AC-8/AC-9
 (reintento sin recargar). Contrato, ADR y plan sin hallazgos: no cambia ningún evento, `seq`, sincronización ni autoridad.
 
 | REV | Severidad | Categoría | Criterio | Estado |
 |---|---|---|---|---|
-| [01](../reviews/REV-2026-11-25-pw-002-acceso-alias-unico-01.md) | Medium | IMPLEMENTATION | AC-9 / AC-8 | Corregido en `delivery-build`, pendiente de verificar |
+| [01](../reviews/REV-2026-11-25-pw-002-acceso-alias-unico-01.md) | Medium | IMPLEMENTATION | AC-9 / AC-8 | Cerrado (verificado en `3f05ff6`) |
 | [02](../reviews/REV-2026-11-25-pw-002-acceso-alias-unico-02.md) | Low | DESIGN | AC-8 | Abierto (permitido): parpadeo de la entrada durante el `resume` inicial |
-| [03](../reviews/REV-2026-11-25-pw-002-acceso-alias-unico-03.md) | Low | IMPLEMENTATION | AC-8 | Corregido en `delivery-build`, pendiente de verificar |
+| [03](../reviews/REV-2026-11-25-pw-002-acceso-alias-unico-03.md) | Low | IMPLEMENTATION | AC-8 | Cerrado (verificado en `3f05ff6`) |
 
 **Corrección (ENGINEERING, tras REV de `da407b1`).** REV-01: tras `io server disconnect` el controlador
 pasa a `link: "connecting"` y llama a `socket.connect()`; la prueba de cliente comprueba la reconexión y que
@@ -328,7 +335,17 @@ _Pendiente._
 
 ## Publicación
 
-_Pendiente._
+PR [rolion/WSBoard#3](https://github.com/rolion/WSBoard/pull/3) listo para revisión humana. El merge es manual.
+
+- Plan: [PLAN-2026-11-25-pw-002-acceso-alias-unico](../plans/PLAN-2026-11-25-pw-002-acceso-alias-unico.md) (COMPLETO, v1).
+  DDR: [DDR-pw-002-acceso-alias-unico-entrada](../design/DDR-pw-002-acceso-alias-unico-entrada.md). ADR: ninguno nuevo.
+- Limitaciones: sin comprobación visual en el navegador integrado ni pruebas de render de componentes (los E2E cubren
+  roles, textos y foco); E2E ejecutados con el Chrome instalado, sin descargar el Chromium de Playwright; la
+  expulsión por `io server disconnect` solo tiene prueba unitaria, no E2E.
+- Hallazgos abiertos: REV-02 (Low, parpadeo de la entrada durante el `resume` inicial).
+- A revisar por quien apruebe: dependencia nueva `@playwright/test`; eliminación de `ConnectionController`
+  (supersede A-3 de PW-001); supuestos A-1 a A-8 del TASK (en especial A-5, sin límite de tasa en `join`);
+  `ALREADY_JOINED` evaluado antes que `ALIAS_TAKEN`; deuda de ack perdido en `join` (alias propio como "en uso" hasta 30 s).
 
 ## Historial
 
@@ -339,3 +356,4 @@ _Pendiente._
 | 2026-11-25 | ENGINEERING → REVIEW | Implementado; lint, typecheck, build, 159 pruebas unitarias/integración y 6 E2E en PASS |
 | 2026-11-25 | REVIEW → ENGINEERING | FAIL en `da407b1`: REV-01 (Medium). REV-02 y 03 (Low) |
 | 2026-11-25 | ENGINEERING → REVIEW | Corrección de REV-01 y REV-03; 159 pruebas y 6 E2E en PASS |
+| 2026-11-25 | REVIEW → PUBLISH | Veredicto PASS en `3f05ff6`; REV-01 y 03 cerrados; REV-02 (Low) abierto y permitido |

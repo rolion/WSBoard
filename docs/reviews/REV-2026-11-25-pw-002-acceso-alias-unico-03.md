@@ -5,6 +5,7 @@
 - Criterio: AC-8 (Test Specification: "foco y rol `alert`/`status`")
 - Plan vigente: PLAN-2026-11-25-pw-002-acceso-alias-unico v1, paso 9
 - Commit revisado: `da407b1`
+- Estado: Cerrado (verificado en `3f05ff6`)
 - Etapa responsable: ENGINEERING → `delivery-build`
 
 **Esperado.** Los E2E comprueban el foco del campo tras un error y los roles ARIA `alert`/`status`.

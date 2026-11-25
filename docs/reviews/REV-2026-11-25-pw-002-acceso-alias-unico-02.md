@@ -5,6 +5,7 @@
 - Criterio: AC-8; DDR PW-002, "Flujo" paso 1 ("no se muestra la entrada salvo que falle")
 - Plan vigente: PLAN-2026-11-25-pw-002-acceso-alias-unico v1, paso 8
 - Commit revisado: `da407b1`
+- Estado: Abierto (permitido por el gate)
 - Etapa responsable: DESIGN / ENGINEERING (no bloqueante)
 
 **Esperado.** Con token guardado no se muestra la entrada mientras se reanuda.

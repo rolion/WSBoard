@@ -5,6 +5,7 @@
 - Criterio: AC-9 (vuelta a la entrada con aviso) y AC-8 (reintento sin recargar); caso AC-6 (token activo en otra pestaña)
 - Plan vigente: [PLAN-2026-11-25-pw-002-acceso-alias-unico](../plans/PLAN-2026-11-25-pw-002-acceso-alias-unico.md) v1, paso 6
 - Commit revisado: `da407b1`
+- Estado: Cerrado (verificado en `3f05ff6`)
 - Etapa responsable: ENGINEERING → `delivery-build`
 
 **Esperado.** Si el servidor cierra el socket de una pestaña en la sala (otro socket reanudó su token),
