@@ -2,8 +2,8 @@
 
 - Trello: [PW-004](https://trello.com/c/YVBpAcr0/5-pw-004-servidor-websocket-y-protocolo-de-eventos) (lista "Backlog MVP")
 - Rama: `task/TASK-pw-004-servidor-websocket-eventos`
-- PR: pendiente
-- Etapa actual: `PLANNING`
+- PR: [rolion/WSBoard#4](https://github.com/rolion/WSBoard/pull/4)
+- Etapa actual: `ENGINEERING`
 - Clasificación: `NEEDS_PLAN`
 - Diseño requerido: No
 - Plan: [PLAN-2026-11-25-pw-004-servidor-websocket-eventos](../plans/PLAN-2026-11-25-pw-004-servidor-websocket-eventos.md) (COMPLETO)
@@ -213,3 +213,4 @@ _(lo completa `delivery-publish`)_
 | Fecha | Transición | Nota |
 |---|---|---|
 | 2026-11-25 | INVESTIGATION → PLANNING | Tarjeta leída; el ADR de PW-000 ya fija el contrato; sin preguntas de producto abiertas; supuestos S-1 a S-8 registrados; Specification `READY` |
+| 2026-11-25 | PLANNING → ENGINEERING | PR abierto (#4); se invoca `delivery-build` |
