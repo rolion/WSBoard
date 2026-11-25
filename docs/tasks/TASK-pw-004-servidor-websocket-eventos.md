@@ -3,7 +3,7 @@
 - Trello: [PW-004](https://trello.com/c/YVBpAcr0/5-pw-004-servidor-websocket-y-protocolo-de-eventos) (lista "Backlog MVP")
 - Rama: `task/TASK-pw-004-servidor-websocket-eventos`
 - PR: [rolion/WSBoard#4](https://github.com/rolion/WSBoard/pull/4)
-- Etapa actual: `REVIEW`
+- Etapa actual: `PUBLISH`
 - Clasificación: `NEEDS_PLAN`
 - Diseño requerido: No
 - Plan: [PLAN-2026-11-25-pw-004-servidor-websocket-eventos](../plans/PLAN-2026-11-25-pw-004-servidor-websocket-eventos.md) (COMPLETO)
@@ -238,38 +238,45 @@ quedan como en los ADR de PW-000. Decisiones técnicas rutinarias (detalle en el
 
 ## Testing
 
-Revisión 1, commit `b339bc4` (revisor independiente, subagente de contexto limpio sin edición).
+Revisión 2, commit revisado `b59cec4` (revisor independiente, subagente de contexto limpio sin edición). Revisión 1 (`b339bc4`): FAIL, ver REV-01 a REV-08.
 
 | Verificación | Comando | Resultado |
 |---|---|---|
 | Lint | `npm run lint` | PASS |
 | Tipos | `npm run typecheck` | PASS |
-| Unitarias e integración | `npm test` | PASS: shared 75, server 67, client 10; server ×3 sin flakiness |
+| Unitarias e integración | `npm test` | PASS: shared 75, server 72, client 10; server ×3 y `protocol.sync` ×10 sin flakiness |
 | Build | `npm run build` | PASS |
 | Dependencias | `npm audit` | PASS: 0 vulnerabilidades |
-| Higiene del diff | `git ls-files`, grep de secretos | PASS |
-| AC-1 a AC-9 | pruebas del TASK | Código conforme; verificación incompleta en AC-5 y AC-7 (REV-01, REV-02) |
+| Higiene del diff | `git diff --name-only c57c3ab..HEAD`, grep de secretos | PASS: sin temporales, artefactos ni secretos; sin cambios en `shared/` ni `package.json` |
+| AC-1 a AC-9 | pruebas del TASK | PASS: cada criterio con verificación real |
+| Gracia de 30 s vencida | `room.session.test.ts` (temporizadores falsos) | PASS (solo unitaria, desviación declarada) |
 | Playwright | — | NO APLICA (ver Test Specification) |
 | Revisión visual | — | NO APLICA (sin UI) |
 
 ## Review
 
-**Veredicto 1: FAIL** (2026-11-25, commit `b339bc4`). El revisor no encontró defectos de correctitud en `server/src/`; falla porque hay verificaciones exigidas por la Test Specification sin ejecutar (AC-5 sin comprobar ausencia de huecos en A y B; AC-7 sin nombre de evento no cadena). Devuelto a `delivery-build`.
+**Veredicto 2: PASS** (2026-11-25, commit `b59cec4`). REV-01 a REV-08 verificados como resueltos de forma independiente; sin hallazgos nuevos Critical, High, Medium ni Low. El revisor comprobó que las pruebas nuevas fallarían si el comportamiento se rompiera (p. ej. REV-05). Veredicto 1 (`b339bc4`): FAIL.
 
 | REV | Severidad | Categoría | Criterio | Estado |
 |---|---|---|---|---|
-| [01](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-01.md) | Medium | IMPLEMENTATION | AC-5 | Corregido, pendiente de revisión 2 |
-| [02](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-02.md) | Medium | IMPLEMENTATION | AC-7 / A2 | Corregido, pendiente de revisión 2 |
-| [03](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-03.md) | Low | IMPLEMENTATION | AC-8 | Corregido, pendiente de revisión 2 |
-| [04](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-04.md) | Low | IMPLEMENTATION | AC-3 | Corregido, pendiente de revisión 2 |
-| [05](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-05.md) | Low | IMPLEMENTATION | S-1 | Corregido, pendiente de revisión 2 |
-| [06](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-06.md) | Low | ARCHITECTURE | AC-6 | Corregido, pendiente de revisión 2 |
-| [07](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-07.md) | Low | IMPLEMENTATION | AC-6 | Corregido, pendiente de revisión 2 |
-| [08](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-08.md) | Low | IMPLEMENTATION | AC-9 | Corregido, pendiente de revisión 2 |
+| [01](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-01.md) | Medium | IMPLEMENTATION | AC-5 | Resuelto, verificado en la revisión 2 |
+| [02](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-02.md) | Medium | IMPLEMENTATION | AC-7 / A2 | Resuelto, verificado en la revisión 2 |
+| [03](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-03.md) | Low | IMPLEMENTATION | AC-8 | Resuelto, verificado en la revisión 2 |
+| [04](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-04.md) | Low | IMPLEMENTATION | AC-3 | Resuelto, verificado en la revisión 2 |
+| [05](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-05.md) | Low | IMPLEMENTATION | S-1 | Resuelto, verificado en la revisión 2 |
+| [06](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-06.md) | Low | ARCHITECTURE | AC-6 | Resuelto, verificado en la revisión 2 |
+| [07](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-07.md) | Low | IMPLEMENTATION | AC-6 | Resuelto, verificado en la revisión 2 |
+| [08](../reviews/REV-2026-11-25-pw-004-servidor-websocket-eventos-08.md) | Low | IMPLEMENTATION | AC-9 | Resuelto, verificado en la revisión 2 |
+
+**Observación (sin hallazgo):** la prueba de AC-5 no garantiza que el `join` de C caiga a mitad de la ráfaga; mejora opcional: comprobar `ackB.snapshot.seq < ackC.snapshot.seq < último seq`.
 
 ## Publicación
 
-_(lo completa `delivery-publish`)_
+PR [rolion/WSBoard#4](https://github.com/rolion/WSBoard/pull/4) listo para revisión humana. El merge es manual.
+
+- Plan: [PLAN-2026-11-25-pw-004-servidor-websocket-eventos](../plans/PLAN-2026-11-25-pw-004-servidor-websocket-eventos.md) (COMPLETO, v1). Sin ADR ni DDR nuevos: se implementa el contrato aceptado en PW-000 sin cambiarlo.
+- A revisar por quien apruebe: supuestos S-1 a S-10 (interpretaciones del ADR, sobre todo S-1/S-10 sobre acks y errores, S-3 tasa antes de validar y S-9 precedencia de `join`); cierre de socket por nombres de evento `null`/objeto (comportamiento de Socket.IO, documentado en el README); ventana de 1 s de `RATE_STROKE_EVENTS` fija en el servidor; sin dependencias nuevas ni cambios en `shared/`.
+- Limitaciones: la gracia de 30 s vencida solo se prueba con temporizadores falsos; el ack de `join`/`resume` puede llegar a ~8 MB en el peor caso (medición pendiente); sin Playwright ni cliente que consuma el protocolo todavía.
 
 ## Historial
 
@@ -280,3 +287,4 @@ _(lo completa `delivery-publish`)_
 | 2026-11-25 | ENGINEERING → REVIEW | Servidor implementado; lint, typecheck, build y 152 pruebas en PASS; sin cambios en `shared/`; supuesto S-10 añadido |
 | 2026-11-25 | REVIEW → ENGINEERING | Veredicto FAIL en `b339bc4`: REV-01 y REV-02 (Medium) y REV-03 a REV-08 (Low), todos IMPLEMENTATION salvo REV-06 (ARCHITECTURE, solo registro) |
 | 2026-11-25 | ENGINEERING → REVIEW | REV-01 a REV-08 atendidos; lint, typecheck y 72 pruebas del servidor en PASS (×3); se invoca `delivery-publish` |
+| 2026-11-25 | REVIEW → PUBLISH | Veredicto PASS en `b59cec4`; REV-01 a REV-08 resueltos y verificados |
