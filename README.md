@@ -56,3 +56,42 @@ Todas son opcionales. Copia el ejemplo que necesites a `.env` en el mismo direct
 - `server/`: Node.js + Socket.IO (solo `websocket`).
 - `client/`: React 18 + TypeScript + Vite.
 - `docs/`: ADR, DDR, planes, tareas y revisiones (`docs/adr/` tiene las decisiones vigentes).
+
+## Protocolo WebSocket
+
+Fuente normativa: [ADR de contrato](docs/adr/ADR-pw-000-definicion-mvp-contrato-eventos.md) y
+[ajustes A1–A6](docs/adr/ADR-pw-000-definicion-mvp-ajustes-revision.md) (prevalecen). Los tipos,
+esquemas y límites viven en `shared/` (`events.ts`, `schemas.ts`, `limits.ts`); el servidor los aplica en
+`server/src/` (`room/room.ts` es el estado autoritativo, `transport.ts` enlaza Socket.IO).
+
+| Cliente → servidor | Respuesta | Difusión resultante |
+|---|---|---|
+| `session:join { alias, protocol }` | ack `{ ok, sessionToken, snapshot }` | `presence:joined` (a los demás) |
+| `session:resume { sessionToken }` | ack `{ ok, snapshot }` | `presence:status` si estaba en gracia |
+| `session:leave` | cierra el socket | `presence:left` (`leave`) |
+| `stroke:start` / `stroke:points` / `stroke:end` | evento `error` si falla | `stroke:started` / `appended` / `ended` a los demás; `seq:advance` al autor |
+| `chat:send { text }` | ack `{ ok }` | `chat:message` a todos, incluido el emisor |
+
+Reglas de comportamiento:
+
+- Antes de unirse, todo evento distinto de `session:join`/`session:resume` recibe `NOT_JOINED`.
+- Orden de comprobaciones: evento desconocido → `NOT_JOINED` → ack obligatorio → tasa → esquema
+  (`parseClientEvent`) → reglas de dominio. Un evento rechazado no cambia el estado ni consume `seq`.
+- Los eventos con ack (`session:join`, `session:resume`, `chat:send`) responden el error por el ack
+  (`{ ok: false, error: { code, message } }`); los demás emiten el evento `error { code, message }`. Sin ack,
+  esos tres eventos se rechazan con `PAYLOAD_INVALID`.
+- Todo evento de difusión lleva `seq` global, monotónico y sin huecos; `snapshot.seq` ya incluye el
+  `presence:joined` del recién llegado. Un reinicio del servidor genera un nuevo `epoch` e invalida todos los tokens
+  (`SESSION_EXPIRED`).
+- Una conexión caída pasa a `reconnecting` durante `RECONNECT_GRACE_MS` (30 s); `session:resume` la recupera.
+  Vencida la gracia se cierra su trazo abierto y se difunde `presence:left` (`timeout`).
+- Un mensaje mayor que `MAX_MESSAGE_BYTES` cierra el socket (el cliente debe usar `session:resume`). Lo mismo ocurre con un
+  paquete cuyo nombre de evento es `null` u objeto: lo rechaza el parser de Socket.IO antes de llegar al servidor y el
+  participante pasa a `reconnecting`. Un nombre numérico, desconocido o heredado (`constructor`) recibe `PAYLOAD_INVALID`.
+- Precedencia en `session:join`: `ALREADY_JOINED` → esquema (`PROTOCOL_MISMATCH`/`ALIAS_INVALID`/`PAYLOAD_INVALID`) →
+  `ALIAS_TAKEN` → `ROOM_FULL`. `session:leave` y los eventos de trazo o chat antes de unirse reciben `NOT_JOINED`.
+- Los `stroke:*` no tienen ack: sus errores siempre salen por el evento `error`, aunque el cliente pase un callback.
+  Con un trazo propio abierto, repetir su id en `stroke:start` da `STROKE_LIMIT`; repetir el de uno cerrado o ajeno, `STROKE_INVALID`.
+- Correspondencia con los nombres de la tarjeta PW-004: `join`/`join:error` → `session:join` (ack);
+  `presence:update` → `presence:joined|status|left`; `drawing:stroke:*` → `stroke:*`; `board:snapshot` → `snapshot`
+  en el ack; `chat:message` → `chat:send` + `chat:message`; `disconnect` → evento nativo de Socket.IO.
